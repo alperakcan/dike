@@ -1,0 +1,2 @@
+
+include ${RIDETURKEY_GPXCOMPARE_LIBMAKEFILE_PATH}/Makefile.lib

@@ -1,0 +1,12 @@
+.cproject
+.project
+.settings
+.pydevproject
+.vscode
+.devcontainer
+.DS_Store
+dist
+xcuserdata
+*.pro.user
+.qtc_clangd
+data

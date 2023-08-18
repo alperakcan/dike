@@ -1,0 +1,9 @@
+[submodule "3rdparty/libmakefile"]
+	path = 3rdparty/libmakefile
+	url = https://github.com/alperakcan/libmakefile.git
+[submodule "3rdparty/rapidjson"]
+	path = 3rdparty/rapidjson
+	url = https://github.com/Tencent/rapidjson.git
+[submodule "3rdparty/zip"]
+	path = 3rdparty/zip
+	url = https://github.com/kuba--/zip.git
