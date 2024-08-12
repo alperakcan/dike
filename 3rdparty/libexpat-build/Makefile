@@ -2,6 +2,12 @@
 target.extra-y = \
 	install
 
+ifeq (${__WINDOWS__},y)
+
+SYSTEM_NAME := Windows
+
+endif
+
 include ${DIKE_LIBMAKEFILE_PATH}/Makefile.lib
 
 patch:
@@ -20,7 +26,10 @@ config: patch
 	      CFLAGS=-g \
 	      LDFLAGS= \
 	      MAKEFLAGS= \
+	      CC=${CROSS_COMPILE_PREFIX}gcc \
+	      CXX=${CROSS_COMPILE_PREFIX}g++ \
 	      cmake \
+	        -DCMAKE_SYSTEM_NAME=${SYSTEM_NAME} \
 	        -DEXPAT_BUILD_DOCS=OFF \
 	        -DEXPAT_BUILD_EXAMPLES=OFF \
 	        -DEXPAT_BUILD_TESTS=OFF \

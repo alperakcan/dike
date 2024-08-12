@@ -4,8 +4,8 @@
 #include <string.h>
 #include <stdarg.h>
 #include <unistd.h>
+#include <time.h>
 #include <sys/time.h>
-#include <pthread.h>
 
 #define DIKE_DEBUG_NAME                 "DikeDebug"
 #include "DikeDebug.hpp"
@@ -14,43 +14,27 @@ unsigned int dikeDebugLevel             = DIKE_DEBUG_LEVEL_INFO;
 static int debug_initialized            = 0;
 static char *debug_buffer               = NULL;
 static int debug_buffer_size            = 0;
-static pthread_mutex_t debug_mutex      = PTHREAD_MUTEX_INITIALIZER;
 
 int DikeDebugInit (void)
 {
-        DikeDebugLock();
         if (debug_initialized) {
-                DikeDebugUnlock();
                 return 0;
         }
 
         debug_buffer      = NULL;
         debug_buffer_size = 0;
         debug_initialized = 1;
-        DikeDebugUnlock();
         return 0;
 }
 
 void DikeDebugFini (void)
 {
-        DikeDebugLock();
         if (debug_buffer != NULL) {
                 free(debug_buffer);
         }
         debug_buffer      = NULL;
         debug_buffer_size = 0;
         debug_initialized = 0;
-        DikeDebugUnlock();
-}
-
-void DikeDebugLock (void)
-{
-        pthread_mutex_lock(&debug_mutex);
-}
-
-void DikeDebugUnlock (void)
-{
-        pthread_mutex_unlock(&debug_mutex);
 }
 
 const char * DikeDebugLevelToString (unsigned int level)
@@ -120,13 +104,10 @@ int DikeDebugPrintf (unsigned int level, const char *name, const char *function,
 
         DikeDebugInit();
 
-        DikeDebugLock();
-
         va_start(ap, fmt);
         rc = vsnprintf(debug_buffer, debug_buffer_size, fmt, ap);
         va_end(ap);
         if (rc < 0) {
-                DikeDebugUnlock();
                 goto bail;
         }
         if (debug_buffer_size == 0 ||
@@ -141,7 +122,6 @@ int DikeDebugPrintf (unsigned int level, const char *name, const char *function,
                 rc = vsnprintf(debug_buffer, debug_buffer_size, fmt, ap);
                 va_end(ap);
                 if (rc < 0) {
-                        DikeDebugUnlock();
                         goto bail;
                 }
         }
@@ -159,8 +139,6 @@ int DikeDebugPrintf (unsigned int level, const char *name, const char *function,
 
         fprintf(stderr, "dike:%s.%03d:%-5s:%-5s: %s (%s %s:%d)\n", date, milliseconds, name, DikeDebugLevelToString(level), debug_buffer, function, file, line);
         fflush(stderr);
-
-        DikeDebugUnlock();
 
         return 0;
 bail:   va_end(ap);
