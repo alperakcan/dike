@@ -1,4 +1,6 @@
 
+CMAKE ?= cmake
+
 target.extra-y = \
 	install
 
@@ -20,7 +22,8 @@ config: patch
 	      CFLAGS=-g \
 	      LDFLAGS= \
 	      MAKEFLAGS= \
-	      cmake \
+	      ${CMAKE} \
+	      	-DCMAKE_INSTALL_PREFIX=/usr/local \
 	        -DRAPIDJSON_BUILD_DOC=OFF \
 	        -DRAPIDJSON_BUILD_EXAMPLES=OFF \
 	        -DRAPIDJSON_BUILD_TESTS=OFF \

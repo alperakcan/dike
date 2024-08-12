@@ -22,7 +22,7 @@ public:
         void setEle (double ele);
         void setTim (double tim);
 
-        static double DikePointDistanceEuclidean (const struct DikePoint *a, const struct DikePoint *b);
+        static double DikePointDistanceEuclidean (const DikePoint *a, const DikePoint *b);
         static DikePoint DikePointCalculateDerivedPosition (const DikePoint *a, double range, double bearing);
 
 private:

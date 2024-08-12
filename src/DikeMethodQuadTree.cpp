@@ -148,10 +148,10 @@ struct dike_bound {
 static inline __attribute__ ((warn_unused_result)) struct dike_bound dike_bound_null (void)
 {
         struct dike_bound bound;
-        bound.xmin = INT64_MAX;
-        bound.ymin = INT64_MAX;
-        bound.xmax = INT64_MIN;
-        bound.ymax = INT64_MIN;
+        bound.xmin = (double) INT64_MAX;
+        bound.ymin = (double) INT64_MAX;
+        bound.xmax = (double) INT64_MIN;
+        bound.ymax = (double) INT64_MIN;
         return bound;
 }
 

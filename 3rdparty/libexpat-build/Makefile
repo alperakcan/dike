@@ -1,4 +1,6 @@
 
+CMAKE ?= cmake
+
 target.extra-y = \
 	install
 
@@ -28,8 +30,9 @@ config: patch
 	      MAKEFLAGS= \
 	      CC=${CROSS_COMPILE_PREFIX}gcc \
 	      CXX=${CROSS_COMPILE_PREFIX}g++ \
-	      cmake \
+	      ${CMAKE} \
 	        -DCMAKE_SYSTEM_NAME=${SYSTEM_NAME} \
+	      	-DCMAKE_INSTALL_PREFIX=/usr/local \
 	        -DEXPAT_BUILD_DOCS=OFF \
 	        -DEXPAT_BUILD_EXAMPLES=OFF \
 	        -DEXPAT_BUILD_TESTS=OFF \

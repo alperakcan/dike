@@ -1,4 +1,6 @@
 
+CMAKE ?= cmake
+
 target.extra-y = \
 	install
 
@@ -32,7 +34,8 @@ config: patch
 	      LDFLAGS="${LDFLAGS}" \
 	      MAKEFLAGS= \
 	      CC=${CROSS_COMPILE_PREFIX}gcc \
-	      cmake \
+	      ${CMAKE} \
+	      	-DCMAKE_INSTALL_PREFIX=/usr/local \
 	        -DCMAKE_DISABLE_TESTING=ON \
 	        .. \
 	  ) && \

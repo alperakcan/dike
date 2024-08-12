@@ -16,19 +16,22 @@ This application is designed for RideTurkey to compare recorded routes with the 
 
 # build
 
-    cd dike.git
     make
 
 ## mingw
 
-    cd dike.git
-
-    CROSS_COMPILE_HOST=x86_64-w64-mingw32 \
-    CROSS_COMPILE_PREFIX=x86_64-w64-mingw32- \
-    make
+    make \
+        CROSS_COMPILE_HOST=x86_64-w64-mingw32 \
+        CROSS_COMPILE_PREFIX=x86_64-w64-mingw32-
 
 ## msys2
 
-    __WINDOWS__=y \
-    CXXFLAGS="-D__WINDOWS__=y" \
-    make
+    make \
+        __WINDOWS__=y \
+        CXXFLAGS="-D__WINDOWS__=y"
+
+## emsdk
+
+    make \
+        CMAKE="emcmake cmake" \
+        CXX=em++

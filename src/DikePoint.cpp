@@ -75,7 +75,7 @@ void DikePoint::setTim (double tim)
         _tim = tim;
 }
 
-double DikePoint::DikePointDistanceEuclidean (const struct DikePoint *a, const struct DikePoint *b)
+double DikePoint::DikePointDistanceEuclidean (const DikePoint *a, const DikePoint *b)
 {
         double earthRadius = 6378137.0;
         double dLat = (b->lat() - a->lat()) * M_PI / 180.0;
