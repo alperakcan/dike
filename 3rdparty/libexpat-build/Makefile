@@ -4,16 +4,6 @@ target.extra-y = \
 
 include ${DIKE_LIBMAKEFILE_PATH}/Makefile.lib
 
-ifeq (${__DARWIN__},y)
-
-ARCHFLAGS     := -arch arm64 -arch x86_64
-HOSTARCHFLAGS := -arch arm64 -arch x86_64
-
-CFLAGS  := -mmacosx-version-min=10.14
-LDFLAGS := -mmacosx-version-min=10.14
-
-endif
-
 patch:
 	${Q}if [ ! -e .patch ]; then \
 	  ( \
@@ -25,16 +15,18 @@ patch:
 config: patch
 	${Q}if [ ! -e .config ]; then \
 	  ( \
-	      rm -rf ../zip/build && \
-	      mkdir -p ../zip/build && \
-	      cd ../zip/build && \
-	      CFLAGS="-g ${ARCHFLAGS} ${CFLAGS} -Wno-strict-prototypes" \
-	      LDFLAGS="${LDFLAGS}" \
+	      mkdir -p ../libexpat/build && \
+	      cd ../libexpat/build && \
+	      CFLAGS=-g \
+	      LDFLAGS= \
 	      MAKEFLAGS= \
-	      CC=${CROSS_COMPILE_PREFIX}gcc \
 	      cmake \
-	        -DCMAKE_DISABLE_TESTING=ON \
-	        .. \
+	        -DEXPAT_BUILD_DOCS=OFF \
+	        -DEXPAT_BUILD_EXAMPLES=OFF \
+	        -DEXPAT_BUILD_TESTS=OFF \
+	        -DEXPAT_BUILD_TOOLS=OFF \
+		-DEXPAT_SHARED_LIBS=OFF \
+	        ../expat \
 	  ) && \
 	  touch .config; \
 	  rm -f .build; \
@@ -43,8 +35,8 @@ config: patch
 build: config
 	${Q}if [ ! -e .build ]; then \
 	  ( \
-	      mkdir -p ../zip/build && \
-	      cd ../zip/build && \
+	      mkdir -p ../libexpat/build && \
+	      cd ../libexpat/build && \
 	      make \
 	  ) && \
 	  touch .build; \
@@ -54,8 +46,8 @@ build: config
 install: build
 	${Q}if [ ! -e .install ]; then \
 	  ( \
-	      mkdir -p ../zip/build && \
-	      cd ../zip/build && \
+	      mkdir -p ../libexpat/build && \
+	      cd ../libexpat/build && \
 	      DESTDIR=${DIKE_3RDPARTY_INSTALL_PATH} make install \
 	  ) && \
 	  touch .install; \
@@ -68,7 +60,7 @@ clean:
 	  ) && \
 	  rm -rf .patch; \
 	fi
-	${Q}${RM} ../zip/build
+	${Q}${RM} ../libexpat/build
 	${Q}${RM} .config
 	${Q}${RM} .build
 	${Q}${RM} .install

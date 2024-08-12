@@ -1,9 +1,10 @@
 
 subdir-y = \
+	libexpat-build \
 	rapidjson-build \
 	zip-build
 
-include ${RIDETURKEY_GPXCOMPARE_LIBMAKEFILE_PATH}/Makefile.lib
+include ${DIKE_LIBMAKEFILE_PATH}/Makefile.lib
 
 clean:
-	${Q}${RM} ${RIDETURKEY_GPXCOMPARE_3RDPARTY_INSTALL_PATH}
+	${Q}${RM} ${DIKE_3RDPARTY_INSTALL_PATH}

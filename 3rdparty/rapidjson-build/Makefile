@@ -2,7 +2,7 @@
 target.extra-y = \
 	install
 
-include ${RIDETURKEY_GPXCOMPARE_LIBMAKEFILE_PATH}/Makefile.lib
+include ${DIKE_LIBMAKEFILE_PATH}/Makefile.lib
 
 patch:
 	${Q}if [ ! -e .patch ]; then \
@@ -47,7 +47,7 @@ install: build
 	  ( \
 	      mkdir -p ../rapidjson/build && \
 	      cd ../rapidjson/build && \
-	      DESTDIR=${RIDETURKEY_GPXCOMPARE_3RDPARTY_INSTALL_PATH} make install \
+	      DESTDIR=${DIKE_3RDPARTY_INSTALL_PATH} make install \
 	  ) && \
 	  touch .install; \
 	fi
