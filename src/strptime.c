@@ -42,6 +42,8 @@
 #include <string.h>
 #include <time.h>
 
+#include "strptime.h"
+
 /* #define	_ctloc(x)		(_CurrentTimeLocale->x) */
 
 /*
