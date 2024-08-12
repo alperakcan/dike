@@ -18,3 +18,9 @@ This application is designed for RideTurkey to compare recorded routes with the 
 
     cd dike.git
     make
+
+## msys2
+
+    __WINDOWS__=y \
+    CXXFLAGS="-D__WINDOWS__=y" \
+    make
