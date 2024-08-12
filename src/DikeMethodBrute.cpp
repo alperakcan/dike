@@ -83,7 +83,7 @@ double DikeMethodBrutePrivate::calculate (void)
                                         rpoint = _records[k]->getPoint(l);
                                         dikeDebugf("  - j: %d, l: %d", j, l);
                                         dist = DikePoint::DikePointDistanceEuclidean(&std::get<1>(*tpoint), &std::get<1>(*rpoint));
-                                        if (dist <= 400.00) {
+                                        if (dist <= 200.00) {
                                                 mts += 1;
                                                 break;
                                         }
