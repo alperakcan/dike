@@ -10,6 +10,9 @@ dike${target_extension}_files-y += \
 	DikePoint.cpp \
 	DikePath.cpp
 
+dike${target_extension}_files-${__WINDOWS__} += \
+	strptime.c
+
 dike${target_extension}_ldflags-y += \
 	-lzip \
 	-lexpat

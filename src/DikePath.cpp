@@ -12,6 +12,10 @@
 #include <zip/zip.h>
 #include <expat.h>
 
+#if defined(__WINDOWS__)
+#include "strptime.h"
+#endif
+
 #define DIKE_DEBUG_NAME "path"
 #include "DikeDebug.hpp"
 #include "DikePoint.hpp"
