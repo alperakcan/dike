@@ -16,7 +16,8 @@ dike${target_extension}_files-${__WINDOWS__} += \
 
 dike${target_extension}_ldflags-y += \
 	-lzip \
-	-lexpat
+	-lexpat \
+	-static
 
 dike${target_extension}_includes-y += \
 	${DIKE_3RDPARTY_INSTALL_PATH}/usr/local/include
