@@ -8,7 +8,8 @@ class DikeMethod {
 public:
         typedef enum : int32_t {
                 TypeInvalid,
-                TypeBrute
+                TypeBrute,
+                TypeQuadTree
         } Type;
 
         DikeMethod (void);

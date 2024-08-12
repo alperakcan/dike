@@ -7,6 +7,7 @@ dike${target_extension}_files-y += \
 	DikeDebug.cpp \
 	DikeMethod.cpp \
 	DikeMethodBrute.cpp \
+	DikeMethodQuadTree.cpp \
 	DikePoint.cpp \
 	DikePath.cpp
 

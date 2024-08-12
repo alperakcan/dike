@@ -18,7 +18,7 @@
 #define OPTION_RECORD   'r'
 
 #define OPTION_DEBUG_DEFAULT    "info"
-#define OPTION_METHOD_DEFAULT   "brute"
+#define OPTION_METHOD_DEFAULT   "quadtree"
 
 static struct option long_options[] = {
         { "help",       no_argument,            NULL,   OPTION_HELP     },

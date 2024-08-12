@@ -77,7 +77,7 @@ double DikeMethodBrutePrivate::calculate (void)
                         std::tuple<DikePath::Command, DikePoint> *tpoint;
                         tpoint = _tracks[i]->getPoint(j);
                         for (k = 0, kl = _records.size(); k < kl; k++) {
-                                dikeDebugf("  - %d points", _records[i]->getPointsCount());
+                                dikeDebugf("  - %d points", _records[k]->getPointsCount());
                                 for (l = 0, ll = _records[k]->getPointsCount(); l < ll; l++) {
                                         std::tuple<DikePath::Command, DikePoint> *rpoint;
                                         rpoint = _records[k]->getPoint(l);

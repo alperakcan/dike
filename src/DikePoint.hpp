@@ -23,6 +23,7 @@ public:
         void setTim (double tim);
 
         static double DikePointDistanceEuclidean (const struct DikePoint *a, const struct DikePoint *b);
+        static DikePoint DikePointCalculateDerivedPosition (const DikePoint *a, double range, double bearing);
 
 private:
         double _lon;
