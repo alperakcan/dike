@@ -5,19 +5,19 @@
 #include "DikePoint.hpp"
 
 DikePoint::DikePoint (void)
-        : DikePoint(INT32_MIN, INT32_MIN, INT32_MIN, INT32_MIN)
+        : DikePoint(INFINITY, INFINITY, INFINITY, INFINITY)
 {
 
 }
 
 DikePoint::DikePoint (double lon, double lat)
-        : DikePoint(lon, lat, INT32_MIN, INT32_MIN)
+        : DikePoint(lon, lat, INFINITY, INFINITY)
 {
 
 }
 
 DikePoint::DikePoint (double lon, double lat, double ele)
-        : DikePoint(lon, lat, ele, INT32_MIN)
+        : DikePoint(lon, lat, ele, INFINITY)
 {
 
 }
@@ -85,6 +85,9 @@ double DikePoint::DikePointDistanceEuclidean (const DikePoint *a, const DikePoin
         double _a = pow(sindLat, 2) + pow(sindLng, 2) * cos((a->lat() * M_PI / 180.0)) * cos((b->lat() * M_PI / 180.0));
         double _c = 2 * atan2(sqrt(_a), sqrt(1 - _a));
         double dist = earthRadius * _c;
+        if (a->ele() != INFINITY && b->ele() != INFINITY) {
+                dist = sqrt(pow(a->ele() - b->ele(), 2) + pow(dist, 2));
+        }
         return dist;
 }
 

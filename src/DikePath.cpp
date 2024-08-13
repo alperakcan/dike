@@ -4,6 +4,7 @@
 #include <string.h>
 #include <strings.h>
 #include <time.h>
+#include <math.h>
 
 #include <string>
 #include <vector>
@@ -121,15 +122,15 @@ static void XMLCALL xmlParserKmlEndElement (void *userData, const XML_Char *name
                 for (i1 = 0, saveptr1 = NULL, token1 = strtok_r(param->data, " \t\n\r", &saveptr1); token1; i1++, token1 = strtok_r(NULL, " \t\n\r", &saveptr1)) {
                         dikeTracef("  - %s", token1);
 
-                        lon = INT32_MIN;
-                        lat = INT32_MIN;
-                        alt = INT32_MIN;
+                        lon = INFINITY;
+                        lat = INFINITY;
+                        alt = INFINITY;
 
                         for (i2 = 0, saveptr2 = NULL, token2 = strtok_r(token1, ",", &saveptr2); token2; i2++, token2 = strtok_r(NULL, ",", &saveptr2)) {
                                 dikeTracef("    - %s", token2);
                                 if (i2 == 0) lon = strtod(token2, NULL);
                                 else if (i2 == 1) lat = strtod(token2, NULL);
-                                else if (i2 == 2) alt = strtod(token2, NULL);
+                                else if ((i2 == 2) && (strcmp(token2, "0") != 0)) alt = strtod(token2, NULL);
                         }
                         dikeDebugf("  lon: %.7f, lat: %.7f, alt: %.2f", lon, lat, alt);
 
@@ -204,10 +205,10 @@ static void XMLCALL xmlParserGpxStartElement (void *userData, const XML_Char *na
         if (strcasecmp(name, "trkpt") == 0) {
                 int i;
 
-                param->plon = INT32_MIN;
-                param->plat = INT32_MIN;
-                param->pele = INT32_MIN;
-                param->ptim = INT32_MIN;
+                param->plon = INFINITY;
+                param->plat = INFINITY;
+                param->pele = INFINITY;
+                param->ptim = INFINITY;
 
                 for (i = 0; atts && atts[i]; i++) {
                         dikeTracef("  - %s", atts[i]);

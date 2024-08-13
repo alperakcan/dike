@@ -16,7 +16,9 @@ dike${target_extension}_files-${__WINDOWS__} += \
 
 dike${target_extension}_ldflags-y += \
 	-lzip \
-	-lexpat \
+	-lexpat
+
+dike${target_extension}_ldflags-${__WINDOWS__} += \
 	-static
 
 dike${target_extension}_includes-y += \

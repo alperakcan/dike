@@ -650,14 +650,14 @@ int DikeMethodQuadTreePrivate::DikeMethodQuadTreePrivateCalculateQuadTreeCompare
 {
         double dist;
         DikePoint *tpoint;
-        DikePoint rpoint;
+        DikePoint *rpoint;
 
-        (void) data;
+        (void) bound;
 
         tpoint = (DikePoint *) context;
-        rpoint = DikePoint((bound->xmax + bound->xmin) / 2.0, (bound->ymax + bound->ymin) / 2.0);
+        rpoint = (DikePoint *) data;
 
-        dist = DikePoint::DikePointDistanceEuclidean(tpoint, &rpoint);
+        dist = DikePoint::DikePointDistanceEuclidean(tpoint, rpoint);
         if (dist <= 250.00) {
                 return 1;
         }
@@ -709,7 +709,7 @@ std::tuple<int, int, int, double, double> DikeMethodQuadTreePrivate::calculate (
 
                         rbound = dike_bound_null();
                         rbound = dike_bound_union_xy(&rbound, std::get<1>(*rpoint).lon(), std::get<1>(*rpoint).lat());
-                        dike_qtree_add_bound(qtree, &rbound, -1, NULL);
+                        dike_qtree_add_bound(qtree, &rbound, -1, rpoint);
                 }
         }
 
