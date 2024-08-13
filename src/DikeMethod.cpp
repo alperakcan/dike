@@ -7,7 +7,7 @@
 
 #include "DikeDebug.hpp"
 #include "DikeMethod.hpp"
-#include "DikeMethodBrute.hpp"
+#include "DikeMethodBruteForce.hpp"
 #include "DikeMethodQuadTree.hpp"
 
 DikeMethod::DikeMethod (void)
@@ -32,8 +32,8 @@ int DikeMethod::addRecord (DikePath &path)
 
 DikeMethod * DikeMethod::DikeMethodCreateWithType (DikeMethod::Type type)
 {
-        if (type == DikeMethod::TypeBrute) {
-                return new DikeMethodBrute();
+        if (type == DikeMethod::TypeBruteForce) {
+                return new DikeMethodBruteForce();
         }
         if (type == DikeMethod::TypeQuadTree) {
                 return new DikeMethodQuadTree();
@@ -49,8 +49,8 @@ DikeMethod * DikeMethod::DikeMethodCreateWithType (std::string &type)
 
 DikeMethod::Type DikeMethod::DikeMethodTypeFromString (std::string &type)
 {
-        if (strcasecmp(type.c_str(), "brute") == 0) {
-                return DikeMethod::TypeBrute;
+        if (strcasecmp(type.c_str(), "bruteforce") == 0) {
+                return DikeMethod::TypeBruteForce;
         }
         if (strcasecmp(type.c_str(), "quadtree") == 0) {
                 return DikeMethod::TypeQuadTree;

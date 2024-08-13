@@ -609,7 +609,7 @@ public:
         int addTrack (DikePath *path);
         int addRecord (DikePath *path);
 
-        double calculate (void);
+        std::tuple<int, int, int, double, double> calculate (void);
 
 private:
         std::vector<DikePath *> _tracks;
@@ -658,13 +658,13 @@ int DikeMethodQuadTreePrivate::DikeMethodQuadTreePrivateCalculateQuadTreeCompare
         rpoint = DikePoint((bound->xmax + bound->xmin) / 2.0, (bound->ymax + bound->ymin) / 2.0);
 
         dist = DikePoint::DikePointDistanceEuclidean(tpoint, &rpoint);
-        if (dist <= 200.00) {
+        if (dist <= 250.00) {
                 return 1;
         }
         return 0;
 }
 
-double DikeMethodQuadTreePrivate::calculate (void)
+std::tuple<int, int, int, double, double> DikeMethodQuadTreePrivate::calculate (void)
 {
         int i, il;
         int j, jl;
@@ -675,10 +675,16 @@ double DikeMethodQuadTreePrivate::calculate (void)
         struct dike_bound qbound;
 
         int pts;
-        int mts;
+        int mpts;
+
+        double dts;
+        double mdts;
 
         pts = 0;
-        mts = 0;
+        mpts = 0;
+
+        dts = 0;
+        mdts = 0;
 
         dikeDebugf("building qtree");
 
@@ -710,18 +716,22 @@ double DikeMethodQuadTreePrivate::calculate (void)
         dikeDebugf("checking tracks");
         for (i = 0, il = _tracks.size(); i < il; i++) {
                 dikeDebugf("  - %d points", _tracks[i]->getPointsCount());
-                pts +=  _tracks[i]->getPointsCount();
                 for (j = 0, jl = _tracks[i]->getPointsCount(); j < jl; j++) {
                         int rc;
                         struct dike_bound tbound;
                         std::tuple<DikePath::Command, DikePoint> *tpoint;
+                        std::tuple<DikePath::Command, DikePoint> *ppoint;
 
+                        ppoint = (j == 0) ? NULL : _tracks[i]->getPoint(j - 1);
                         tpoint = _tracks[i]->getPoint(j);
 
-                        DikePoint spoint = DikePoint::DikePointCalculateDerivedPosition(&std::get<1>(*tpoint), 200.0, -180.0);
-                        DikePoint wpoint = DikePoint::DikePointCalculateDerivedPosition(&std::get<1>(*tpoint), 200.0, -90.0);
-                        DikePoint epoint = DikePoint::DikePointCalculateDerivedPosition(&std::get<1>(*tpoint), 200.0, 90.0);
-                        DikePoint npoint = DikePoint::DikePointCalculateDerivedPosition(&std::get<1>(*tpoint), 200.0, 0.0);
+                        pts += 1;
+                        dts += (ppoint == NULL) ? 0 : DikePoint::DikePointDistanceEuclidean(&std::get<1>(*ppoint), &std::get<1>(*tpoint));
+
+                        DikePoint spoint = DikePoint::DikePointCalculateDerivedPosition(&std::get<1>(*tpoint), 250.0, -180.0);
+                        DikePoint wpoint = DikePoint::DikePointCalculateDerivedPosition(&std::get<1>(*tpoint), 250.0, -90.0);
+                        DikePoint epoint = DikePoint::DikePointCalculateDerivedPosition(&std::get<1>(*tpoint), 250.0, 90.0);
+                        DikePoint npoint = DikePoint::DikePointCalculateDerivedPosition(&std::get<1>(*tpoint), 250.0, 0.0);
 
                         dikeTracef("- tpoint: %.7f, %.7f", std::get<1>(*tpoint).lon(), std::get<1>(*tpoint).lat());
                         dikeTracef("  spoint: %.7f, %.7f", spoint.lon(), spoint.lat());
@@ -738,18 +748,19 @@ double DikeMethodQuadTreePrivate::calculate (void)
 
                         rc = dike_qtree_check_bound(qtree, &tbound, DikeMethodQuadTreePrivateCalculateQuadTreeCompare, &std::get<1>(*tpoint));
                         if (rc == 1) {
-                                mts += 1;
+                                mpts += 1;
+                                mdts += (ppoint == NULL) ? 0 : DikePoint::DikePointDistanceEuclidean(&std::get<1>(*ppoint), &std::get<1>(*tpoint));
                         }
                 }
         }
 
         dike_qtree_destroy(qtree);
-        return (mts * 100.00) / pts;
+        return std::tuple<int, int, int, double, double>(0, mpts, pts, mdts, dts);
 bail:
         if (qtree != NULL) {
                 dike_qtree_destroy(qtree);
         }
-        return -1;
+        return std::tuple<int, int, int, double, double>(-1, 0, 0, 0, 0);
 }
 
 DikeMethodQuadTree::DikeMethodQuadTree (void)
@@ -784,12 +795,12 @@ int DikeMethodQuadTree::addRecord (DikePath *path)
 bail:   return -1;
 }
 
-double DikeMethodQuadTree::calculate (void)
+std::tuple<int, int, int, double, double> DikeMethodQuadTree::calculate (void)
 {
         if (_private == NULL) {
                 dikeErrorf("private is invalid");
                 goto bail;
         }
         return _private->calculate();
-bail:   return -1;
+bail:   return std::tuple<int, int, int, double, double>(-1, 0, 0, 0, 0);
 }

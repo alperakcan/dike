@@ -112,5 +112,6 @@ DikePoint DikePoint::DikePointCalculateDerivedPosition (const DikePoint *a, doub
         return DikePoint(
                 lon * radiansToDegrees,
                 lat * radiansToDegrees,
-                a->ele());
+                a->ele(),
+                a->tim());
 }

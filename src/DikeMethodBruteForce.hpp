@@ -1,17 +1,17 @@
 
-#if !defined(DIKE_METHOD_QUADTREE_HPP)
-#define DIKE_METHOD_QUADTREE_HPP
+#if !defined(DIKE_METHOD_BRUTEFORCE_HPP)
+#define DIKE_METHOD_BRUTEFORCE_HPP
 
 #include "DikePath.hpp"
 #include "DikeMethod.hpp"
 
-class DikeMethodQuadTreePrivate;
+class DikeMethodBruteForcePrivate;
 
-class DikeMethodQuadTree:
+class DikeMethodBruteForce:
         public DikeMethod {
 public:
-        DikeMethodQuadTree (void);
-        virtual ~DikeMethodQuadTree (void);
+        DikeMethodBruteForce (void);
+        virtual ~DikeMethodBruteForce (void);
 
         virtual int addTrack (DikePath *path);
         virtual int addRecord (DikePath *path);
@@ -19,7 +19,7 @@ public:
         virtual std::tuple<int, int, int, double, double>  calculate (void);
 
 private:
-        DikeMethodQuadTreePrivate *_private;
+        DikeMethodBruteForcePrivate *_private;
 };
 
 #endif

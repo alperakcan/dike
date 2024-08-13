@@ -6,32 +6,32 @@
 #include <tuple>
 #include <vector>
 
-#define DIKE_DEBUG_NAME "brute"
+#define DIKE_DEBUG_NAME "bruteforce"
 #include "DikeDebug.hpp"
 #include "DikePath.hpp"
 #include "DikeMethod.hpp"
-#include "DikeMethodBrute.hpp"
+#include "DikeMethodBruteForce.hpp"
 
-class DikeMethodBrutePrivate {
+class DikeMethodBruteForcePrivate {
 public:
-        DikeMethodBrutePrivate (void);
-        ~DikeMethodBrutePrivate (void);
+        DikeMethodBruteForcePrivate (void);
+        ~DikeMethodBruteForcePrivate (void);
 
         int addTrack (DikePath *path);
         int addRecord (DikePath *path);
 
-        double calculate (void);
+        std::tuple<int, int, int, double, double>  calculate (void);
 
 private:
         std::vector<DikePath *> _tracks;
         std::vector<DikePath *> _records;
 };
 
-DikeMethodBrutePrivate::DikeMethodBrutePrivate (void)
+DikeMethodBruteForcePrivate::DikeMethodBruteForcePrivate (void)
 {
 }
 
-DikeMethodBrutePrivate::~DikeMethodBrutePrivate (void)
+DikeMethodBruteForcePrivate::~DikeMethodBruteForcePrivate (void)
 {
         int i;
         int il;
@@ -43,19 +43,19 @@ DikeMethodBrutePrivate::~DikeMethodBrutePrivate (void)
         }
 }
 
-int DikeMethodBrutePrivate::addTrack (DikePath *path)
+int DikeMethodBruteForcePrivate::addTrack (DikePath *path)
 {
         _tracks.push_back(path->incref());
         return 0;
 }
 
-int DikeMethodBrutePrivate::addRecord (DikePath *path)
+int DikeMethodBruteForcePrivate::addRecord (DikePath *path)
 {
         _records.push_back(path->incref());
         return 0;
 }
 
-double DikeMethodBrutePrivate::calculate (void)
+std::tuple<int, int, int, double, double>  DikeMethodBruteForcePrivate::calculate (void)
 {
         int i, il;
         int j, jl;
@@ -64,18 +64,30 @@ double DikeMethodBrutePrivate::calculate (void)
         double dist;
 
         int pts;
-        int mts;
+        int mpts;
+
+        double dts;
+        double mdts;
 
         pts = 0;
-        mts = 0;
+        mpts = 0;
+
+        dts = 0;
+        mdts = 0;
 
         dikeDebugf("calculating tracks:");
         for (i = 0, il = _tracks.size(); i < il; i++) {
                 dikeDebugf("  - %d points", _tracks[i]->getPointsCount());
-                pts +=  _tracks[i]->getPointsCount();
                 for (j = 0, jl = _tracks[i]->getPointsCount(); j < jl; j++) {
                         std::tuple<DikePath::Command, DikePoint> *tpoint;
+                        std::tuple<DikePath::Command, DikePoint> *ppoint;
+
+                        ppoint = (j == 0) ? NULL : _tracks[i]->getPoint(j - 1);
                         tpoint = _tracks[i]->getPoint(j);
+
+                        pts += 1;
+                        dts += (ppoint == NULL) ? 0 : DikePoint::DikePointDistanceEuclidean(&std::get<1>(*ppoint), &std::get<1>(*tpoint));
+
                         for (k = 0, kl = _records.size(); k < kl; k++) {
                                 dikeDebugf("  - %d points", _records[k]->getPointsCount());
                                 for (l = 0, ll = _records[k]->getPointsCount(); l < ll; l++) {
@@ -83,8 +95,9 @@ double DikeMethodBrutePrivate::calculate (void)
                                         rpoint = _records[k]->getPoint(l);
                                         dikeDebugf("  - j: %d, l: %d", j, l);
                                         dist = DikePoint::DikePointDistanceEuclidean(&std::get<1>(*tpoint), &std::get<1>(*rpoint));
-                                        if (dist <= 200.00) {
-                                                mts += 1;
+                                        if (dist <= 250.00) {
+                                                mpts += 1;
+                                                mdts += (ppoint == NULL) ? 0 : DikePoint::DikePointDistanceEuclidean(&std::get<1>(*ppoint), &std::get<1>(*tpoint));
                                                 break;
                                         }
                                 }
@@ -95,22 +108,22 @@ double DikeMethodBrutePrivate::calculate (void)
                 }
         }
 
-        return (mts * 100.00) / pts;
+        return std::tuple<int, int, int, double, double>(0, mpts, pts, mdts, dts);
 }
 
-DikeMethodBrute::DikeMethodBrute (void)
+DikeMethodBruteForce::DikeMethodBruteForce (void)
 {
-        _private = new DikeMethodBrutePrivate();
+        _private = new DikeMethodBruteForcePrivate();
 }
 
-DikeMethodBrute::~DikeMethodBrute (void)
+DikeMethodBruteForce::~DikeMethodBruteForce (void)
 {
         if (_private != NULL) {
                 delete _private;
         }
 }
 
-int DikeMethodBrute::addTrack (DikePath *path)
+int DikeMethodBruteForce::addTrack (DikePath *path)
 {
         if (_private == NULL) {
                 dikeErrorf("private is invalid");
@@ -120,7 +133,7 @@ int DikeMethodBrute::addTrack (DikePath *path)
 bail:   return -1;
 }
 
-int DikeMethodBrute::addRecord (DikePath *path)
+int DikeMethodBruteForce::addRecord (DikePath *path)
 {
         if (_private == NULL) {
                 dikeErrorf("private is invalid");
@@ -130,12 +143,12 @@ int DikeMethodBrute::addRecord (DikePath *path)
 bail:   return -1;
 }
 
-double DikeMethodBrute::calculate (void)
+std::tuple<int, int, int, double, double>  DikeMethodBruteForce::calculate (void)
 {
         if (_private == NULL) {
                 dikeErrorf("private is invalid");
                 goto bail;
         }
         return _private->calculate();
-bail:   return -1;
+bail:   return std::tuple<int, int, int, double, double>(-1, 0, 0, 0, 0);
 }

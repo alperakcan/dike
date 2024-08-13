@@ -59,8 +59,8 @@ int main (int argc, char **argv)
         std::vector<std::string> o_tracks;
         std::vector<std::string> o_records;
 
-        double calc;
         DikeMethod *method;
+        std::tuple<int, int, int, double, double> calc;
 
         rs = 0;
         method = NULL;
@@ -154,12 +154,19 @@ int main (int argc, char **argv)
 
         dikeInfof("calculating:");
         calc = method->calculate();
-        if (calc < 0) {
+        if (std::get<DikeMethod::CalculateFieldStatus>(calc) < 0) {
                 dikeErrorf("can not calculate");
                 goto bail;
         }
 
-        dikeInfof("  %.2f", calc);
+        dikeInfof("  points  : %%%.3f (%d / %d)",
+                std::get<DikeMethod::CalculateFieldMatchedPoints>(calc) * 100.0 / std::get<DikeMethod::CalculateFieldTotalPoints>(calc),
+                std::get<DikeMethod::CalculateFieldMatchedPoints>(calc),
+                std::get<DikeMethod::CalculateFieldTotalPoints>(calc));
+        dikeInfof("  distance: %%%.3f (%.3f / %.3f)",
+                std::get<DikeMethod::CalculateFieldMatchedDistance>(calc) * 100.0 / std::get<DikeMethod::CalculateFieldTotalDistance>(calc),
+                std::get<DikeMethod::CalculateFieldMatchedDistance>(calc),
+                std::get<DikeMethod::CalculateFieldTotalDistance>(calc));
 
 out:
         if (method != NULL) {
