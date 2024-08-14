@@ -210,8 +210,8 @@ static void XMLCALL xmlParserGpxStartElement (void *userData, const XML_Char *na
                 param->pele = INFINITY;
                 param->ptim = INFINITY;
 
-                for (i = 0; atts && atts[i]; i++) {
-                        dikeTracef("  - %s", atts[i]);
+                for (i = 0; atts && atts[i]; i += 2) {
+                        dikeTracef("  - %s = %s", atts[i], atts[i + 1]);
                         if (strcasecmp(atts[i], "lon") == 0) {
                                 param->plon = atof(atts[i + 1]);
                         } else if (strcasecmp(atts[i], "lat") == 0) {
@@ -245,7 +245,7 @@ static void XMLCALL xmlParserGpxEndElement (void *userData, const XML_Char *name
         if (strcasecmp(name, "trkpt") == 0) {
                 int rc;
 
-                dikeDebugf("  lon: %.7f, lat: %.7f, ele: %.2f, tim: %.3f", param->plon, param->plat, param->pele, param->ptim);
+                dikeTracef("  lon: %.7f, lat: %.7f, ele: %.2f, tim: %.3f", param->plon, param->plat, param->pele, param->ptim);
 
                 if (param->trkpts == 1) {
                         rc = param->path->moveTo(param->plon, param->plat, param->pele, param->ptim);
@@ -259,6 +259,7 @@ static void XMLCALL xmlParserGpxEndElement (void *userData, const XML_Char *name
                 param->trkpt = 0;
         }
         if (strcasecmp(name, "ele") == 0) {
+                dikeTracef("param->data: %p, size: %d, str: %s", param->data, param->size, param->data);
                 if (param->trkseg && param->trkpt && param->data) {
                         param->pele = atof(param->data);
                 }
@@ -271,6 +272,7 @@ static void XMLCALL xmlParserGpxEndElement (void *userData, const XML_Char *name
                 param->ele = 0;
         }
         if (strcasecmp(name, "time") == 0) {
+                dikeTracef("param->data: %p, size: %d, str: %s", param->data, param->size, param->data);
                 if (param->trkseg && param->trkpt && param->data) {
                         struct tm tm;
                         memset(&tm, 0, sizeof(tm));
@@ -294,6 +296,7 @@ static void XMLCALL xmlParserGpxCharacterData (void *userData, const XML_Char *s
 
         (void) str;
         (void) len;
+
 
         if (param->trkseg && param->trkpt && param->ele) {
                 dikeTracef("len: %d", len);
@@ -819,7 +822,7 @@ kml_bail:
                 int rc;
 
                 XML_Parser xmlParser;
-                xmlParserKmlParam xmlParam;
+                xmlParserGpxParam xmlParam;
 
                 xmlParser = NULL;
                 memset(&xmlParam, 0, sizeof(xmlParam));
@@ -843,7 +846,6 @@ kml_bail:
                         dikeErrorf("can not parse line: %ld, error: %s", XML_GetCurrentLineNumber(xmlParser), XML_ErrorString(XML_GetErrorCode(xmlParser)));
                         goto gpx_bail;
                 }
-
                 free(xmlParam.data);
                 XML_ParserFree(xmlParser);
                 return xmlParam.path;

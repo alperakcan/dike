@@ -30,7 +30,8 @@ dike${target_extension}_files-${__WINDOWS__} += \
 
 dike${target_extension}_ldflags-y += \
 	-lzip \
-	-lexpat
+	-lexpat \
+	-lm
 
 dike${target_extension}_ldflags-${__WINDOWS__} += \
 	-static
@@ -76,7 +77,8 @@ DikeWasm.js: wasm.cpp ${dike${target_extension}_sources-y} Makefile
 	  -s EXTRA_EXPORTED_RUNTIME_METHODS='["getValue", "cwrap"]' \
 	  --minify 0 \
 	  -lzip \
-	  -lexpat
+	  -lexpat \
+	  -lm
 
 DikeWasmES6.js: wasm.cpp ${dike${target_extension}_sources-y} Makefile
 	em++ -o DikeWasmES6.js wasm.cpp ${dike${target_extension}_sources-y} \
@@ -94,7 +96,8 @@ DikeWasmES6.js: wasm.cpp ${dike${target_extension}_sources-y} Makefile
 	  -s EXTRA_EXPORTED_RUNTIME_METHODS='["getValue", "cwrap"]' \
 	  --minify 0 \
 	  -lzip \
-	  -lexpat
+	  -lexpat \
+	  -lm
 
 clean:
 	${Q}${RM} DikeWasmES6.js

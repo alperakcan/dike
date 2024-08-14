@@ -171,12 +171,17 @@
                         dikeCalculateButton.onclick = function (event) {
                                 dikeModule._reset(dikeInstance);
 
+                                let load;
+                                var timePrev = (new Date()).getTime();
+
                                 let method = inputDikeMethod.value;
                                 let methodUTF8     = stringToUTF8Array(method);
                                 let methodRaw      = dikeModule._malloc(methodUTF8.length);;
                                 dikeModule.HEAPU8.set(methodUTF8, methodRaw);
                                 dikeModule._setMethod(dikeInstance, methodRaw);
                                 dikeModule._free(methodRaw);
+
+                                load = 0;
 
                                 for (let i = 0; i < dikeTracks.length; i++) {
                                         let file = dikeTracks[i];
@@ -192,6 +197,30 @@
                                                         outputDike.innerHTML += `load: ${dikeTracks[i].name}, rc: ${rc}<br>`;
                                                 }
                                                 dikeModule._free(raw);
+
+                                                load += 1;
+                                                if (load == dikeTracks.length + dikeRecords.length) {
+                                                        var timeThen = (new Date()).getTime();
+                                                        var timeElapsed = timeThen - timePrev;
+                                                        outputDike.innerHTML += "loaded in " + timeElapsed + "ms <br>";
+
+                                                        timePrev = (new Date()).getTime();
+                                                        let calculateResult = dikeModule._calculate(dikeInstance);
+                                                        let calculateMatchedPoints   = dikeModule.getValue(calculateResult + 0, 'i32');
+                                                        let calculateTotalPoints     = dikeModule.getValue(calculateResult + 4, 'i32');
+                                                        let calculateMatchedDistance = dikeModule.getValue(calculateResult + 8, 'double');
+                                                        let calculateTotalDistance   = dikeModule.getValue(calculateResult + 16, 'double');
+                                                        timeThen = (new Date()).getTime();
+                                                        timeElapsed = timeThen - timePrev;
+                                                        outputDike.innerHTML += "calculated in " + timeElapsed + "ms <br>";
+
+                                                        outputDike.innerHTML += `<p>`;
+                                                        outputDike.innerHTML += `points  : ${(calculateMatchedPoints * 100 / calculateTotalPoints).toFixed(3)} (${calculateMatchedPoints} / ${calculateTotalPoints})<br>`;
+                                                        outputDike.innerHTML += `distance: ${(calculateMatchedDistance * 100 / calculateTotalDistance).toFixed(3)} (${calculateMatchedDistance.toFixed(3)} / ${calculateTotalDistance.toFixed(3)})<br>`;
+                                                        outputDike.innerHTML += `</p>`;
+
+                                                        dikeModule._free(calculateResult);
+                                                }
                                         }
                                         fileReader.readAsArrayBuffer(file);
                                 }
@@ -210,6 +239,30 @@
                                                         outputDike.innerHTML += `load: ${dikeRecords[i].name}, rc: ${rc}<br>`;
                                                 }
                                                 dikeModule._free(raw);
+
+                                                load += 1;
+                                                if (load == dikeTracks.length + dikeRecords.length) {
+                                                        var timeThen = (new Date()).getTime();
+                                                        var timeElapsed = timeThen - timePrev;
+                                                        outputDike.innerHTML += "loaded in " + timeElapsed + "ms <br>";
+
+                                                        timePrev = (new Date()).getTime();
+                                                        let calculateResult = dikeModule._calculate(dikeInstance);
+                                                        let calculateMatchedPoints   = dikeModule.getValue(calculateResult + 0, 'i32');
+                                                        let calculateTotalPoints     = dikeModule.getValue(calculateResult + 4, 'i32');
+                                                        let calculateMatchedDistance = dikeModule.getValue(calculateResult + 8, 'double');
+                                                        let calculateTotalDistance   = dikeModule.getValue(calculateResult + 16, 'double');
+                                                        timeThen = (new Date()).getTime();
+                                                        timeElapsed = timeThen - timePrev;
+                                                        outputDike.innerHTML += "calculated in " + timeElapsed + "ms <br>";
+
+                                                        outputDike.innerHTML += `<p>`;
+                                                        outputDike.innerHTML += `points  : ${(calculateMatchedPoints * 100 / calculateTotalPoints).toFixed(3)} (${calculateMatchedPoints} / ${calculateTotalPoints})<br>`;
+                                                        outputDike.innerHTML += `distance: ${(calculateMatchedDistance * 100 / calculateTotalDistance).toFixed(3)} (${calculateMatchedDistance.toFixed(3)} / ${calculateTotalDistance.toFixed(3)})<br>`;
+                                                        outputDike.innerHTML += `</p>`;
+
+                                                        dikeModule._free(calculateResult);
+                                                }
                                         }
                                         fileReader.readAsArrayBuffer(file);
                                 }
@@ -274,7 +327,7 @@
                                 <td><button id="dikeCalculateButton">calculate</button></td>
                         </tr>
                         <tr>
-                                <td>
+                                <td colspan="100%">
                                         <p id="outputDike"></p>
                                 </td>
                         </tr>

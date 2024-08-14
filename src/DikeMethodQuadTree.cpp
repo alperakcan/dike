@@ -601,6 +601,27 @@ static __attribute__ ((__unused__)) int dike_qtree_traverse (
 bail:   return -1;
 }
 
+static int qtree_traverse_bucket_start (void *context, struct dike_qtree_bucket *bucket)
+{
+        (void) context;
+        dikeDebugf("  bucket: " DIKE_BOUND_FORMAT "", DIKE_BOUND_FORMAT_ARG(bucket->bound));
+        return 0;
+}
+
+static int qtree_traverse_item (void *context, struct dike_qtree_bucket *bucket, struct dike_qtree_item *item)
+{
+        (void) context;
+        dikeDebugf("  bucket: " DIKE_BOUND_FORMAT "", DIKE_BOUND_FORMAT_ARG(bucket->bound));
+        dikeDebugf("  item  : " DIKE_BOUND_FORMAT "", DIKE_BOUND_FORMAT_ARG(item->bound));
+        return 0;
+}
+
+static int qtree_traverse_bucket_end (void *context)
+{
+        (void) context;
+        return 0;
+}
+
 class DikeMethodQuadTreePrivate {
 public:
         DikeMethodQuadTreePrivate (void);
@@ -711,7 +732,7 @@ std::tuple<int, int, int, double, double> DikeMethodQuadTreePrivate::calculate (
 
                         rbound = dike_bound_null();
                         rbound = dike_bound_union_xy(&rbound, std::get<1>(*rpoint).lon(), std::get<1>(*rpoint).lat());
-                        dike_qtree_add_bound(qtree, &rbound, -1, rpoint);
+                        dike_qtree_add_bound(qtree, &rbound, -1, &std::get<1>(*rpoint));
                 }
         }
 
@@ -758,6 +779,8 @@ std::tuple<int, int, int, double, double> DikeMethodQuadTreePrivate::calculate (
                         pmpts = rc;
                 }
         }
+
+        dike_qtree_traverse(qtree, qtree_traverse_bucket_start, qtree_traverse_item, qtree_traverse_bucket_end, NULL);
 
         dike_qtree_destroy(qtree);
         return std::tuple<int, int, int, double, double>(0, mpts, pts, mdts, dts);

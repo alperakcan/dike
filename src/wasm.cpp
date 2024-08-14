@@ -172,8 +172,16 @@ bail:   if (path != NULL) {
         return -1;
 }
 
-extern "C" int calculate (struct dike *dike)
+struct calculateResult {
+        int32_t matched_points;
+        int32_t total_points;
+        double matched_distance;
+        double total_distance;
+};
+
+extern "C" struct calculateResult * calculate (struct dike *dike)
 {
+        struct calculateResult *calculateResult;
         std::tuple<int, int, int, double, double> calc;
 
         if (dike == NULL) {
@@ -200,6 +208,13 @@ extern "C" int calculate (struct dike *dike)
                 std::get<DikeMethod::CalculateFieldMatchedDistance>(calc),
                 std::get<DikeMethod::CalculateFieldTotalDistance>(calc));
 
-        return 0;
-bail:   return -1;
+
+        calculateResult = (struct calculateResult *) malloc(sizeof(struct calculateResult));
+        calculateResult->matched_points   = std::get<DikeMethod::CalculateFieldMatchedPoints>(calc);
+        calculateResult->total_points     = std::get<DikeMethod::CalculateFieldTotalPoints>(calc);
+        calculateResult->matched_distance = std::get<DikeMethod::CalculateFieldMatchedDistance>(calc);
+        calculateResult->total_distance   = std::get<DikeMethod::CalculateFieldTotalDistance>(calc);
+
+        return calculateResult;
+bail:   return NULL;
 }
