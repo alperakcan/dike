@@ -1,8 +1,14 @@
 <html>
         <head>
-                <meta charset="utf-8"></meta>
-                <title>dike.wasm</title>
-        </head>
+                <title>Dike - RideTurkey - Route Success Calculator</title>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+                <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+                </head>
 
         <body id="body">
                 <script type="module">
@@ -86,17 +92,19 @@
                                 let innerHTML = "";
 
                                 if (dikeTracks.length == 0) {
-                                        innerHTML = "(empty)";
+                                        innerHTML += "(empty)";
                                 } else {
-                                        innerHTML  = `<table>`;
+                                        innerHTML += ``;
+                                        innerHTML += `<div>`;
                                         for (let i = 0; i < dikeTracks.length; i++) {
-                                                console.log(dikeTracks[i].name);
-                                                innerHTML += `<tr><td onclick="inputDikeTrackDel(${i});">- ${dikeTracks[i].name}</td></tr>`;
+                                                innerHTML += `<p onclick="inputDikeTrackDel(${i});">${dikeTracks[i].name}</p>`;
                                         }
-                                        innerHTML += `</table>`;
+                                        innerHTML += `</div>`;
                                 }
 
                                 inputDikeTracksList.innerHTML = innerHTML;
+
+                                dikeResult.innerHTML = "Add the base tracks and route records, then kick 'Calculate'.";
                         }
 
                         inputDikeTrackAdd.onclick = function (event) {
@@ -112,16 +120,19 @@
                                 let innerHTML = "";
 
                                 if (dikeTracks.length == 0) {
-                                        innerHTML = "(empty)";
+                                        innerHTML += "(empty)";
                                 } else {
-                                        innerHTML  = `<table>`;
+                                        innerHTML += ``;
+                                        innerHTML += `<div>`;
                                         for (let i = 0; i < dikeTracks.length; i++) {
-                                                innerHTML += `<tr><td onclick="inputDikeTrackDel(${i});">- ${dikeTracks[i].name}</td></tr>`;
+                                                innerHTML += `<p onclick="inputDikeTrackDel(${i});">${dikeTracks[i].name}</p>`;
                                         }
-                                        innerHTML += `</table>`;
+                                        innerHTML += `</div>`;
                                 }
 
                                 inputDikeTracksList.innerHTML = innerHTML;
+
+                                dikeResult.innerHTML = "Add the base tracks and route records, then kick 'Calculate'.";
                         }
 
                         let inputDikeRecordDel = function (idx) {
@@ -130,17 +141,19 @@
                                 let innerHTML = "";
 
                                 if (dikeRecords.length == 0) {
-                                        innerHTML = "(empty)";
+                                        innerHTML += "(empty)";
                                 } else {
-                                        innerHTML  = `<table>`;
+                                        innerHTML += ``;
+                                        innerHTML += `<div>`;
                                         for (let i = 0; i < dikeRecords.length; i++) {
-                                                console.log(dikeRecords[i].name);
-                                                innerHTML += `<tr><td onclick="inputDikeRecordDel(${i});">- ${dikeRecords[i].name}</td></tr>`;
+                                                innerHTML += `<p onclick="inputDikeRecordDel(${i});">${dikeRecords[i].name}</p>`;
                                         }
-                                        innerHTML += `</table>`;
+                                        innerHTML += `</div>`;
                                 }
 
                                 inputDikeRecordsList.innerHTML = innerHTML;
+
+                                dikeResult.innerHTML = "Add the base tracks and route records, then kick 'Calculate'.";
                         }
 
                         inputDikeRecordAdd.onclick = function (event) {
@@ -156,16 +169,19 @@
                                 let innerHTML = "";
 
                                 if (dikeRecords.length == 0) {
-                                        innerHTML = "(empty)";
+                                        innerHTML += "(empty)";
                                 } else {
-                                        innerHTML  = `<table>`;
+                                        innerHTML += ``;
+                                        innerHTML += `<div>`;
                                         for (let i = 0; i < dikeRecords.length; i++) {
-                                                innerHTML += `<tr><td onclick="inputDikeRecordDel(${i});">- ${dikeRecords[i].name}</td></tr>`;
+                                                innerHTML += `<p onclick="inputDikeRecordDel(${i});">${dikeRecords[i].name}</p>`;
                                         }
-                                        innerHTML += `</table>`;
+                                        innerHTML += `</div>`;
                                 }
 
                                 inputDikeRecordsList.innerHTML = innerHTML;
+
+                                dikeResult.innerHTML = "Add the base tracks and route records, then kick 'Calculate'.";
                         }
 
                         dikeCalculateButton.onclick = function (event) {
@@ -174,7 +190,7 @@
                                 let load;
                                 var timePrev = (new Date()).getTime();
 
-                                let method = inputDikeMethod.value;
+                                let method         = "quadtree";
                                 let methodUTF8     = stringToUTF8Array(method);
                                 let methodRaw      = dikeModule._malloc(methodUTF8.length);;
                                 dikeModule.HEAPU8.set(methodUTF8, methodRaw);
@@ -183,7 +199,10 @@
 
                                 load = 0;
 
-                                outputDike.innerHTML = "loading tracks/records";
+                                dikeResult.innerHTML = "Calculating...";
+                                window.scrollTo(0, 0);
+
+                                outputDike.innerHTML = "loading tracks/records<br>";
 
                                 for (let i = 0; i < dikeTracks.length; i++) {
                                         let file = dikeTracks[i];
@@ -220,6 +239,8 @@
                                                         outputDike.innerHTML += `points  : ${(calculateMatchedPoints * 100 / calculateTotalPoints).toFixed(3)} (${calculateMatchedPoints} / ${calculateTotalPoints})<br>`;
                                                         outputDike.innerHTML += `distance: ${(calculateMatchedDistance * 100 / calculateTotalDistance).toFixed(3)} (${calculateMatchedDistance.toFixed(3)} / ${calculateTotalDistance.toFixed(3)})<br>`;
                                                         outputDike.innerHTML += `</p>`;
+
+                                                        dikeResult.innerHTML = `% ${(calculateMatchedDistance * 100 / calculateTotalDistance).toFixed(3)} (${calculateMatchedDistance.toFixed(3)} / ${calculateTotalDistance.toFixed(3)})<br>`;
 
                                                         dikeModule._free(calculateResult);
                                                 }
@@ -263,6 +284,8 @@
                                                         outputDike.innerHTML += `distance: ${(calculateMatchedDistance * 100 / calculateTotalDistance).toFixed(3)} (${calculateMatchedDistance.toFixed(3)} / ${calculateTotalDistance.toFixed(3)})<br>`;
                                                         outputDike.innerHTML += `</p>`;
 
+                                                        dikeResult.innerHTML = `% ${(calculateMatchedDistance * 100 / calculateTotalDistance).toFixed(3)} (${calculateMatchedDistance.toFixed(3)} / ${calculateTotalDistance.toFixed(3)})<br>`;
+
                                                         dikeModule._free(calculateResult);
                                                 }
                                         }
@@ -270,69 +293,51 @@
                                 }
                         }
 
-                        inputDikeMethod.value = "quadtree";
+                        dikeResult.innerHTML = "Add the base tracks and route records, then kick 'Calculate'.";
                         inputDikeTracksList.innerHTML = "(empty)";
+                        inputDikeRecordsList.innerHTML = "(empty)";
 
                         window.inputDikeTrackDel = inputDikeTrackDel;
                         window.inputDikeRecordDel = inputDikeRecordDel;
 
                         window.addEventListener("load", init, false);
                 </script>
-                <table style="border-collapse: separate; border-spacing: 1em;">
-                        <tr>
-                                <td>method</td>
-                                <td>
-                                        <select id="inputDikeMethod" name="name">
-                                                <option value="bruteforce">bruteforce</option>
-                                                <option value="quadtree">quadtree</option>
-                                        </select>
-                                </td>
-                        </tr>
-                        <tr>
-                                <td valign="top">tracks</td>
-                                <td>
-                                        <table>
-                                                <tr>
-                                                        <td id="inputDikeTracksList">
-                                                                (empty)
-                                                        </td>
-                                                </tr>
-                                                <tr>
-                                                        <td id="inputDikeTrackAdd">
-                                                                + add track
-                                                        </td>
-                                                </tr>
-                                        </table>
-                                </td>
-                                <td><input id="inputDikeTrackAddSelectFile" type="file" name="name" style="display: none;" multiple /></td>
-                        </tr>
-                        <tr>
-                                <td valign="top">records</td>
-                                <td>
-                                        <table>
-                                                <tr>
-                                                        <td id="inputDikeRecordsList">
-                                                                (empty)
-                                                        </td>
-                                                </tr>
-                                                <tr>
-                                                        <td id="inputDikeRecordAdd">
-                                                                + add record
-                                                        </td>
-                                                </tr>
-                                        </table>
-                                </td>
-                                <td><input id="inputDikeRecordAddSelectFile" type="file" name="name" style="display: none;" multiple /></td>
-                        </tr>
-                        <tr>
-                                <td></td>
-                                <td><button id="dikeCalculateButton">calculate</button></td>
-                        </tr>
-                        <tr>
-                                <td colspan="100%">
-                                        <p id="outputDike"></p>
-                                </td>
-                        </tr>
-                </table>
+                <div class="container flex">
+                        <br>
+                        <h3 class="text-center">Dike - RideTurkey - Route Success Calculator</h3>
+                        <br>
+                        <div id="dikeResult" class="text-center">Add the base tracks and route records, then kick 'Calculate'.</div>
+                        <br>
+                        <div class="border card">
+                                <div class="card-body">
+                                        <h5 class="card-title text-center">Tracks</h5>
+                                        <br>
+                                        <div id="inputDikeTracksList" class="container text-center"></div>
+                                        <br>
+                                        <button id="inputDikeTrackAdd" type="button" class="w-100 btn btn-light">Add Track</button>
+                                        <input id="inputDikeTrackAddSelectFile" type="file" name="name" style="display: none;" multiple />
+                                </div>
+                        </div>
+                        <br>
+                        <div class="border card">
+                                <div class="card-body">
+                                        <h5 class="card-title text-center">Records</h5>
+                                        <br>
+                                        <div id="inputDikeRecordsList" class="container text-center"></div>
+                                        <br>
+                                        <button id="inputDikeRecordAdd" type="button" class="w-100 btn btn-light">Add Record</button>
+                                        <input id="inputDikeRecordAddSelectFile" type="file" name="name" style="display: none;" multiple />
+                                </div>
+                        </div>
+                        <br>
+                        <button id="dikeCalculateButton" type="button" class="w-100 btn btn-light">Calculate</button>
+                </div>
+                <br>
+                <div class="container flex">
+                        <div class="border card">
+                                <div id="outputDike" class="card-body">
+                                </div>
+                        </div>
+                </div>
         </body>
 </html>

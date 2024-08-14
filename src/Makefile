@@ -70,7 +70,7 @@ DikeWasm.js: wasm.cpp ${dike${target_extension}_sources-y} Makefile
 	  -s EXPORT_NAME="DikeWasm" \
 	  -s EXPORT_ES6=0 \
 	  -s WASM=1 \
-	  -s ASSERTIONS=1 \
+	  -s ASSERTIONS=0 \
 	  -s NO_EXIT_RUNTIME=1 \
 	  -s ALLOW_MEMORY_GROWTH=1 \
 	  -s EXPORTED_FUNCTIONS='["_malloc", "_free", "_create", "_destroy", "_reset", "_setMethod", "_addTrack", "_addRecord", "_calculate"]' \
@@ -89,7 +89,7 @@ DikeWasmES6.js: wasm.cpp ${dike${target_extension}_sources-y} Makefile
 	  -s EXPORT_NAME="DikeWasm" \
 	  -s EXPORT_ES6=1 \
 	  -s WASM=1 \
-	  -s ASSERTIONS=1 \
+	  -s ASSERTIONS=0 \
 	  -s NO_EXIT_RUNTIME=1 \
 	  -s ALLOW_MEMORY_GROWTH=1 \
 	  -s EXPORTED_FUNCTIONS='["_malloc", "_free", "_create", "_destroy", "_reset", "_setMethod", "_addTrack", "_addRecord", "_calculate"]' \
