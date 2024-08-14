@@ -798,7 +798,7 @@ kmz_bail:
                 rc = XML_Parse(xmlParser, buffer, length, 1);
                 if (rc != XML_STATUS_OK) {
                         dikeErrorf("can not parse line: %ld, error: %s", XML_GetCurrentLineNumber(xmlParser), XML_ErrorString(XML_GetErrorCode(xmlParser)));
-                        goto kmz_bail;
+                        goto kml_bail;
                 }
 
                 free(xmlParam.data);
@@ -826,13 +826,13 @@ kml_bail:
                 xmlParam.path = new DikePath();
                 if (xmlParam.path == NULL) {
                         dikeErrorf("can not create path");
-                        goto kml_bail;
+                        goto gpx_bail;
                 }
 
                 xmlParser = XML_ParserCreate(NULL);
                 if (xmlParser == NULL) {
                         dikeErrorf("can not create parser");
-                        goto kml_bail;
+                        goto gpx_bail;
                 }
                 XML_SetUserData(xmlParser, &xmlParam);
                 XML_SetElementHandler(xmlParser, xmlParserGpxStartElement, xmlParserGpxEndElement);
@@ -841,7 +841,7 @@ kml_bail:
                 rc = XML_Parse(xmlParser, buffer, length, 1);
                 if (rc != XML_STATUS_OK) {
                         dikeErrorf("can not parse line: %ld, error: %s", XML_GetCurrentLineNumber(xmlParser), XML_ErrorString(XML_GetErrorCode(xmlParser)));
-                        goto kmz_bail;
+                        goto gpx_bail;
                 }
 
                 free(xmlParam.data);

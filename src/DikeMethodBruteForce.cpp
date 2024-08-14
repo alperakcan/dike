@@ -91,26 +91,29 @@ std::tuple<int, int, int, double, double>  DikeMethodBruteForcePrivate::calculat
                         dts += (ppoint == NULL) ? 0 : DikePoint::DikePointDistanceEuclidean(&std::get<1>(*ppoint), &std::get<1>(*tpoint));
 
                         for (k = 0, kl = _records.size(); k < kl; k++) {
-                                dikeDebugf("  - %d points", _records[k]->getPointsCount());
+                                dikeDebugf("    - %d points", _records[k]->getPointsCount());
                                 for (l = 0, ll = _records[k]->getPointsCount(); l < ll; l++) {
                                         std::tuple<DikePath::Command, DikePoint> *rpoint;
                                         rpoint = _records[k]->getPoint(l);
-                                        dikeDebugf("  - j: %d, l: %d", j, l);
+                                        dikeDebugf("      - j: %d, l: %d", j, l);
                                         dist = DikePoint::DikePointDistanceEuclidean(&std::get<1>(*tpoint), &std::get<1>(*rpoint));
                                         if (dist <= 250.00) {
                                                 if (pmpts) {
                                                         mpts += 1;
                                                         mdts += (ppoint == NULL) ? 0 : DikePoint::DikePointDistanceEuclidean(&std::get<1>(*ppoint), &std::get<1>(*tpoint));
-                                                        break;
                                                 }
-                                                pmpts = 1;
-                                        } else {
-                                                pmpts = 0;
+                                                break;
                                         }
                                 }
                                 if (l < ll) {
                                         break;
                                 }
+                        }
+
+                        if (k < kl) {
+                                pmpts = 1;
+                        } else {
+                                pmpts = 0;
                         }
                 }
         }

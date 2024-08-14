@@ -42,6 +42,20 @@ bail:   if (dike != NULL) {
         return NULL;
 }
 
+extern "C" int reset (struct dike *dike)
+{
+        if (dike == NULL) {
+                dikeErrorf("dike is invalid");
+                goto bail;
+        }
+        if (dike->method != NULL) {
+                delete dike->method;
+                dike->method = NULL;
+        }
+        return 0;
+bail:   return -1;
+}
+
 extern "C" int setMethod (struct dike *dike, const char *method)
 {
         int rc;
@@ -51,7 +65,7 @@ extern "C" int setMethod (struct dike *dike, const char *method)
                 goto bail;
         }
         if (method == NULL) {
-                dikeErrorf("track is invalid");
+                dikeErrorf("method is invalid");
                 goto bail;
         }
 
@@ -83,6 +97,15 @@ extern "C" int addTrack (struct dike *dike, const char *buffer, int length)
         }
         if (buffer == NULL) {
                 dikeErrorf("buffer is invalid");
+                goto bail;
+        }
+        if (length <= 0) {
+                dikeErrorf("length is invalid");
+                goto bail;
+        }
+
+        if (dike->method == NULL) {
+                dikeErrorf("dike method is invalid");
                 goto bail;
         }
 
@@ -120,6 +143,15 @@ extern "C" int addRecord (struct dike *dike, const char *buffer, int length)
                 dikeErrorf("buffer is invalid");
                 goto bail;
         }
+        if (length <= 0) {
+                dikeErrorf("length is invalid");
+                goto bail;
+        }
+
+        if (dike->method == NULL) {
+                dikeErrorf("dike method is invalid");
+                goto bail;
+        }
 
         path = DikePath::DikePathCreateFromBuffer(buffer, length);
         if (path == NULL) {
@@ -138,4 +170,36 @@ bail:   if (path != NULL) {
                 path->decref();
         }
         return -1;
+}
+
+extern "C" int calculate (struct dike *dike)
+{
+        std::tuple<int, int, int, double, double> calc;
+
+        if (dike == NULL) {
+                dikeErrorf("dike is invalid");
+                goto bail;
+        }
+        if (dike->method == NULL) {
+                dikeErrorf("dike method is invalid");
+                goto bail;
+        }
+
+        calc = dike->method->calculate();
+        if (std::get<DikeMethod::CalculateFieldStatus>(calc) < 0) {
+                dikeErrorf("can not calculate");
+                goto bail;
+        }
+
+        dikeInfof("  points  : %%%.3f (%d / %d)",
+                std::get<DikeMethod::CalculateFieldMatchedPoints>(calc) * 100.0 / std::get<DikeMethod::CalculateFieldTotalPoints>(calc),
+                std::get<DikeMethod::CalculateFieldMatchedPoints>(calc),
+                std::get<DikeMethod::CalculateFieldTotalPoints>(calc));
+        dikeInfof("  distance: %%%.3f (%.3f / %.3f)",
+                std::get<DikeMethod::CalculateFieldMatchedDistance>(calc) * 100.0 / std::get<DikeMethod::CalculateFieldTotalDistance>(calc),
+                std::get<DikeMethod::CalculateFieldMatchedDistance>(calc),
+                std::get<DikeMethod::CalculateFieldTotalDistance>(calc));
+
+        return 0;
+bail:   return -1;
 }

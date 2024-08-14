@@ -49,6 +49,7 @@ dist.share-y    = DikeWasm.js
 dist.share-y   += DikeWasm.wasm
 dist.share-y   += DikeWasmES6.js
 dist.share-y   += DikeWasmES6.wasm
+dist.share-y   += dikeWasmES6.html
 
 else
 
@@ -71,8 +72,7 @@ DikeWasm.js: wasm.cpp ${dike${target_extension}_sources-y} Makefile
 	  -s ASSERTIONS=0 \
 	  -s NO_EXIT_RUNTIME=1 \
 	  -s ALLOW_MEMORY_GROWTH=1 \
-	  -s TOTAL_MEMORY=41943040 \
-	  -s EXPORTED_FUNCTIONS='["_malloc", "_free", "_create", "_destroy", "_setMethod", "_addTrack", "_addRecord"]' \
+	  -s EXPORTED_FUNCTIONS='["_malloc", "_free", "_create", "_destroy", "_reset", "_setMethod", "_addTrack", "_addRecord", "_calculate"]' \
 	  -s EXTRA_EXPORTED_RUNTIME_METHODS='["getValue", "cwrap"]' \
 	  --minify 0 \
 	  -lzip \
@@ -90,8 +90,7 @@ DikeWasmES6.js: wasm.cpp ${dike${target_extension}_sources-y} Makefile
 	  -s ASSERTIONS=0 \
 	  -s NO_EXIT_RUNTIME=1 \
 	  -s ALLOW_MEMORY_GROWTH=1 \
-	  -s TOTAL_MEMORY=41943040 \
-	  -s EXPORTED_FUNCTIONS='["_malloc", "_free", "_create", "_destroy", "_setMethod", "_addTrack", "_addRecord"]' \
+	  -s EXPORTED_FUNCTIONS='["_malloc", "_free", "_create", "_destroy", "_reset", "_setMethod", "_addTrack", "_addRecord", "_calculate"]' \
 	  -s EXTRA_EXPORTED_RUNTIME_METHODS='["getValue", "cwrap"]' \
 	  --minify 0 \
 	  -lzip \
