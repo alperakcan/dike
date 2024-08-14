@@ -676,12 +676,14 @@ std::tuple<int, int, int, double, double> DikeMethodQuadTreePrivate::calculate (
 
         int pts;
         int mpts;
+        int pmpts;
 
         double dts;
         double mdts;
 
         pts = 0;
         mpts = 0;
+        pmpts = 0;
 
         dts = 0;
         mdts = 0;
@@ -748,9 +750,12 @@ std::tuple<int, int, int, double, double> DikeMethodQuadTreePrivate::calculate (
 
                         rc = dike_qtree_check_bound(qtree, &tbound, DikeMethodQuadTreePrivateCalculateQuadTreeCompare, &std::get<1>(*tpoint));
                         if (rc == 1) {
-                                mpts += 1;
-                                mdts += (ppoint == NULL) ? 0 : DikePoint::DikePointDistanceEuclidean(&std::get<1>(*ppoint), &std::get<1>(*tpoint));
+                                if (pmpts) {
+                                        mpts += 1;
+                                        mdts += (ppoint == NULL) ? 0 : DikePoint::DikePointDistanceEuclidean(&std::get<1>(*ppoint), &std::get<1>(*tpoint));
+                                }
                         }
+                        pmpts = rc;
                 }
         }
 
