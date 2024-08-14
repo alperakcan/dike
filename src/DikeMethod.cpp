@@ -47,12 +47,25 @@ DikeMethod * DikeMethod::DikeMethodCreateWithType (std::string &type)
         return DikeMethodCreateWithType(DikeMethodTypeFromString(type));
 }
 
+DikeMethod * DikeMethod::DikeMethodCreateWithType (const char *type)
+{
+        return DikeMethodCreateWithType(DikeMethodTypeFromString(type));
+}
+
 DikeMethod::Type DikeMethod::DikeMethodTypeFromString (std::string &type)
 {
-        if (strcasecmp(type.c_str(), "bruteforce") == 0) {
+        return DikeMethodTypeFromString(type.c_str());
+}
+
+DikeMethod::Type DikeMethod::DikeMethodTypeFromString (const char *type)
+{
+        if (type == NULL) {
+                return DikeMethod::TypeInvalid;
+        }
+        if (strcasecmp(type, "bruteforce") == 0) {
                 return DikeMethod::TypeBruteForce;
         }
-        if (strcasecmp(type.c_str(), "quadtree") == 0) {
+        if (strcasecmp(type, "quadtree") == 0) {
                 return DikeMethod::TypeQuadTree;
         }
         return DikeMethod::TypeInvalid;

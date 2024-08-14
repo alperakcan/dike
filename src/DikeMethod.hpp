@@ -35,8 +35,10 @@ public:
 
         static DikeMethod * DikeMethodCreateWithType (DikeMethod::Type type);
         static DikeMethod * DikeMethodCreateWithType (std::string &type);
+        static DikeMethod * DikeMethodCreateWithType (const char *type);
 
         static DikeMethod::Type DikeMethodTypeFromString (std::string &type);
+        static DikeMethod::Type DikeMethodTypeFromString (const char *type);
 };
 
 #endif

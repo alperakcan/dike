@@ -32,6 +32,7 @@ This application is designed for RideTurkey to compare recorded routes with the 
 
 ## emsdk
 
-    make \
+    emmake make \
+        __EMSDK__=y \
         CMAKE="emcmake cmake" \
         CXX=em++

@@ -691,3 +691,174 @@ gpx_bail:
         dikeErrorf("file: %s is invalid", file.c_str());
         return NULL;
 }
+
+DikePath * DikePath::DikePathCreateFromBuffer (const char *buffer, int length)
+{
+        dikeDebugf("parsing buffer");
+        if ((length >= 4) && (buffer[0] == 'P') && (buffer[1] == 'K') && (buffer[2] == 0x03) && (buffer[3] == 0x04)) {
+                int rc;
+
+                struct zip_t *zip;
+                struct zipOnExtractParam zipParam;
+
+                XML_Parser xmlParser;
+                xmlParserKmlParam xmlParam;
+
+                zip = NULL;
+                memset(&zipParam, 0, sizeof(zipParam));
+
+                xmlParser = NULL;
+                memset(&xmlParam, 0, sizeof(xmlParam));
+
+                zip = zip_stream_open(buffer, length, 0, 'r');
+                if (zip == NULL) {
+                        dikeErrorf("can not open zip");
+                        goto kmz_bail;
+                }
+                rc = zip_entry_open(zip, "doc.kml");
+                if (rc != 0) {
+                        dikeErrorf("can not open zip entry: doc.kml");
+                        goto kmz_bail;
+                }
+                zipParam.data = NULL;
+                zipParam.size = 0;
+                rc = zip_entry_extract(zip, zipOnExtract, &zipParam);
+                if (rc != 0) {
+                        dikeErrorf("can not extract zip entry: doc.kml");
+                        goto kmz_bail;
+                }
+
+                xmlParam.path = new DikePath();
+                if (xmlParam.path == NULL) {
+                        dikeErrorf("can not create path for file");
+                        goto kmz_bail;
+                }
+
+                xmlParser = XML_ParserCreate(NULL);
+                if (xmlParser == NULL) {
+                        dikeErrorf("can not create parser");
+                        goto kmz_bail;
+                }
+                XML_SetUserData(xmlParser, &xmlParam);
+                XML_SetElementHandler(xmlParser, xmlParserKmlStartElement, xmlParserKmlEndElement);
+                XML_SetCharacterDataHandler(xmlParser, xmlParserKmlCharacterData);
+
+                rc = XML_Parse(xmlParser, zipParam.data, zipParam.size, 1);
+                if (rc != XML_STATUS_OK) {
+                        dikeErrorf("can not parse line: %ld, error: %s", XML_GetCurrentLineNumber(xmlParser), XML_ErrorString(XML_GetErrorCode(xmlParser)));
+                        goto kmz_bail;
+                }
+
+                free(xmlParam.data);
+                XML_ParserFree(xmlParser);
+                free(zipParam.data);
+                zip_entry_close(zip);
+                zip_stream_close(zip);
+                return xmlParam.path;
+kmz_bail:
+                if (zip != NULL) {
+                        zip_close(zip);
+                }
+                if (zipParam.data != NULL) {
+                        free(zipParam.data);
+                }
+                if (xmlParser != NULL) {
+                        XML_ParserFree(xmlParser);
+                }
+                if (xmlParam.data != NULL) {
+                        free(xmlParam.data);
+                }
+                if (xmlParam.path != NULL) {
+                        delete xmlParam.path;
+                }
+                return NULL;
+        } else if (memmem(buffer, length, "<kml ", strlen("<kml ")) != NULL) {
+                int rc;
+
+                XML_Parser xmlParser;
+                xmlParserKmlParam xmlParam;
+
+                xmlParser = NULL;
+                memset(&xmlParam, 0, sizeof(xmlParam));
+                xmlParam.path = new DikePath();
+                if (xmlParam.path == NULL) {
+                        dikeErrorf("can not create path");
+                        goto kml_bail;
+                }
+
+                xmlParser = XML_ParserCreate(NULL);
+                if (xmlParser == NULL) {
+                        dikeErrorf("can not create parser");
+                        goto kml_bail;
+                }
+                XML_SetUserData(xmlParser, &xmlParam);
+                XML_SetElementHandler(xmlParser, xmlParserKmlStartElement, xmlParserKmlEndElement);
+                XML_SetCharacterDataHandler(xmlParser, xmlParserKmlCharacterData);
+
+                rc = XML_Parse(xmlParser, buffer, length, 1);
+                if (rc != XML_STATUS_OK) {
+                        dikeErrorf("can not parse line: %ld, error: %s", XML_GetCurrentLineNumber(xmlParser), XML_ErrorString(XML_GetErrorCode(xmlParser)));
+                        goto kmz_bail;
+                }
+
+                free(xmlParam.data);
+                XML_ParserFree(xmlParser);
+                return xmlParam.path;
+kml_bail:
+                if (xmlParser != NULL) {
+                        XML_ParserFree(xmlParser);
+                }
+                if (xmlParam.data != NULL) {
+                        free(xmlParam.data);
+                }
+                if (xmlParam.path != NULL) {
+                        delete xmlParam.path;
+                }
+                return NULL;
+        } else if (memmem(buffer, length, "<gpx ", strlen("<gpx ")) != NULL) {
+                int rc;
+
+                XML_Parser xmlParser;
+                xmlParserKmlParam xmlParam;
+
+                xmlParser = NULL;
+                memset(&xmlParam, 0, sizeof(xmlParam));
+                xmlParam.path = new DikePath();
+                if (xmlParam.path == NULL) {
+                        dikeErrorf("can not create path");
+                        goto kml_bail;
+                }
+
+                xmlParser = XML_ParserCreate(NULL);
+                if (xmlParser == NULL) {
+                        dikeErrorf("can not create parser");
+                        goto kml_bail;
+                }
+                XML_SetUserData(xmlParser, &xmlParam);
+                XML_SetElementHandler(xmlParser, xmlParserGpxStartElement, xmlParserGpxEndElement);
+                XML_SetCharacterDataHandler(xmlParser, xmlParserGpxCharacterData);
+
+                rc = XML_Parse(xmlParser, buffer, length, 1);
+                if (rc != XML_STATUS_OK) {
+                        dikeErrorf("can not parse line: %ld, error: %s", XML_GetCurrentLineNumber(xmlParser), XML_ErrorString(XML_GetErrorCode(xmlParser)));
+                        goto kmz_bail;
+                }
+
+                free(xmlParam.data);
+                XML_ParserFree(xmlParser);
+                return xmlParam.path;
+gpx_bail:
+                if (xmlParser != NULL) {
+                        XML_ParserFree(xmlParser);
+                }
+                if (xmlParam.data != NULL) {
+                        free(xmlParam.data);
+                }
+                if (xmlParam.path != NULL) {
+                        delete xmlParam.path;
+                }
+                return NULL;
+        }
+        dikeErrorf("buffer is invalid");
+        return NULL;
+}

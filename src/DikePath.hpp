@@ -37,6 +37,7 @@ public:
         std::tuple<DikePath::Command, DikePoint> * getPoint (int index);
 
         static DikePath * DikePathCreateFromFile (std::string &file);
+        static DikePath * DikePathCreateFromBuffer (const char *buffer, int length);
 
 private:
         int32_t _refcount;
