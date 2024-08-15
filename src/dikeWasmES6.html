@@ -214,8 +214,6 @@
                                                 let rc = dikeModule._addTrack(dikeInstance, raw, uint8Array.length);
                                                 if (rc != 0) {
                                                         outputDike.innerHTML += `can not load: ${dikeTracks[i].name}, rc: ${rc}<br>`;
-                                                } else {
-                                                        outputDike.innerHTML += `load: ${dikeTracks[i].name}, rc: ${rc}<br>`;
                                                 }
                                                 dikeModule._free(raw);
 
@@ -245,6 +243,7 @@
                                                         dikeModule._free(calculateResult);
                                                 }
                                         }
+                                        outputDike.innerHTML += `loading: ${dikeTracks[i].name}<br>`;
                                         fileReader.readAsArrayBuffer(file);
                                 }
 
@@ -258,8 +257,6 @@
                                                 let rc = dikeModule._addRecord(dikeInstance, raw, uint8Array.length);
                                                 if (rc != 0) {
                                                         outputDike.innerHTML += `can not load: ${dikeRecords[i].name}, rc: ${rc}<br>`;
-                                                } else {
-                                                        outputDike.innerHTML += `load: ${dikeRecords[i].name}, rc: ${rc}<br>`;
                                                 }
                                                 dikeModule._free(raw);
 
@@ -289,11 +286,12 @@
                                                         dikeModule._free(calculateResult);
                                                 }
                                         }
+                                        outputDike.innerHTML += `loading: ${dikeRecords[i].name}<br>`;
                                         fileReader.readAsArrayBuffer(file);
                                 }
                         }
 
-                        dikeResult.innerHTML = "Add the base tracks and route records, then kick 'Calculate'.";
+                        dikeResult.innerHTML = "Add base tracks and route records, then kick 'Calculate'.";
                         inputDikeTracksList.innerHTML = "(empty)";
                         inputDikeRecordsList.innerHTML = "(empty)";
 
