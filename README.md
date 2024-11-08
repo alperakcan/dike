@@ -36,3 +36,22 @@ This application is designed for RideTurkey to compare recorded routes with the 
         __EMSDK__=y \
         CMAKE="emcmake cmake" \
         CXX=em++
+
+### emscripten
+
+#### clone
+
+    git clone https://github.com/emscripten-core/emsdk.git emsdk.git
+    cd emsdk.git
+    git pull
+    git submodule update --init --recursive
+    git submodule sync
+
+#### build
+
+    ./emsdk install latest
+    ./emsdk activate latest
+
+#### activate
+
+    source emsdk_env.sh

@@ -260,7 +260,7 @@ static void XMLCALL xmlParserGpxEndElement (void *userData, const XML_Char *name
         }
         if (strcasecmp(name, "ele") == 0) {
                 dikeTracef("param->data: %p, size: %d, str: %s", param->data, param->size, param->data);
-                if (param->trkseg && param->trkpt && param->data) {
+                if (param->trkseg && param->trkpt && param->data && (strcmp(param->data, "0") != 0)) {
                         param->pele = atof(param->data);
                 }
                 if (param->data != NULL) {

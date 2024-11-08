@@ -31,7 +31,7 @@ static struct option long_options[] = {
 static void print_usage (const char *pname)
 {
         fprintf(stdout, "Usage: %s [OPTION]...\n", pname);
-        fprintf(stdout, "  -d, --debug  : debug level\n");
+        fprintf(stdout, "  -d, --debug  : debug level (default: %s)\n", OPTION_DEBUG_DEFAULT);
         fprintf(stdout, "                 silent\n");
         fprintf(stdout, "                 error\n");
         fprintf(stdout, "                 warning\n");
@@ -39,8 +39,9 @@ static void print_usage (const char *pname)
         fprintf(stdout, "                 info\n");
         fprintf(stdout, "                 debug\n");
         fprintf(stdout, "                 trace\n");
-        fprintf(stdout, "  -m, --method : method to calculate truth\n");
-        fprintf(stdout, "                 brute\n");
+        fprintf(stdout, "  -m, --method : method to calculate truth (default: %s)\n", OPTION_METHOD_DEFAULT);
+        fprintf(stdout, "                 bruteforce\n");
+        fprintf(stdout, "                 quadtree\n");
         fprintf(stdout, "  -t, --track  : base route to compare with\n");
         fprintf(stdout, "  -r, --record:: recorded route to calculate truth\n");
         fprintf(stdout, "  -h, --help   : this text\n");
