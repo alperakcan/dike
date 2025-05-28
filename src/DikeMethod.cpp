@@ -40,6 +40,11 @@ int DikeMethod::addRecord (DikePath &path)
         return addRecord(&path);
 }
 
+int DikeMethod::getCoverageRadius (void)
+{
+        return _coverageRadius;
+}
+
 DikeMethod * DikeMethod::DikeMethodCreateWithType (DikeMethod::Type type, const DikeMethodOptions &options)
 {
         if (type == DikeMethod::TypeBruteForce) {

@@ -39,6 +39,8 @@ public:
         virtual int addTrack (DikePath *path) = 0;
         virtual int addRecord (DikePath *path) = 0;
 
+        int getCoverageRadius (void);
+
         virtual std::tuple<int, int, int, double, double> calculate (void) = 0;
 
         static DikeMethod * DikeMethodCreateWithType (DikeMethod::Type type, const DikeMethodOptions &options);
