@@ -19,12 +19,14 @@ public:
 
         int addTrack (DikePath *path);
         int addRecord (DikePath *path);
+        int setCoverageRadius (int radius);
 
         std::tuple<int, int, int, double, double>  calculate (void);
 
 private:
         std::vector<DikePath *> _tracks;
         std::vector<DikePath *> _records;
+        int _coverageRadius;
 };
 
 DikeMethodBruteForcePrivate::DikeMethodBruteForcePrivate (void)
@@ -52,6 +54,12 @@ int DikeMethodBruteForcePrivate::addTrack (DikePath *path)
 int DikeMethodBruteForcePrivate::addRecord (DikePath *path)
 {
         _records.push_back(path->incref());
+        return 0;
+}
+
+int DikeMethodBruteForcePrivate::setCoverageRadius (int radius)
+{
+        _coverageRadius = radius;
         return 0;
 }
 
@@ -97,7 +105,7 @@ std::tuple<int, int, int, double, double>  DikeMethodBruteForcePrivate::calculat
                                         rpoint = _records[k]->getPoint(l);
                                         dikeDebugf("      - j: %d, l: %d", j, l);
                                         dist = DikePoint::DikePointDistanceEuclidean(&std::get<1>(*tpoint), &std::get<1>(*rpoint));
-                                        if (dist <= 250.00) {
+                                        if (dist <= _coverageRadius) {
                                                 if (pmpts) {
                                                         mpts += 1;
                                                         mdts += (ppoint == NULL) ? 0 : DikePoint::DikePointDistanceEuclidean(&std::get<1>(*ppoint), &std::get<1>(*tpoint));
@@ -125,6 +133,7 @@ DikeMethodBruteForce::DikeMethodBruteForce (const DikeMethodOptions &options)
         : DikeMethod(options)
 {
         _private = new DikeMethodBruteForcePrivate();
+        _private->setCoverageRadius(getCoverageRadius());
 }
 
 DikeMethodBruteForce::~DikeMethodBruteForce (void)

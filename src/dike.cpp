@@ -78,7 +78,7 @@ int main (int argc, char **argv)
         DikeDebugInit();
         DikeDebugSetLevel(DikeDebugLevelFromString(OPTION_DEBUG_DEFAULT));
 
-        while ((o = getopt_long(argc, argv, "hd:m:t:r:", long_options, &oi)) != -1) {
+        while ((o = getopt_long(argc, argv, "hd:m:t:r:c:", long_options, &oi)) != -1) {
                 switch (o) {
                         case 'h':
                                 print_usage(argv[0]);

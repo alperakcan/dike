@@ -226,9 +226,9 @@ struct dike_qtree {
         struct dike_qtree_bucket *root;
 };
 
-#define dike_qtree_capture_destroy(a)                do { } while (0)
-#define dike_qtree_capture_create(a, b, c, d)        do { } while (0)
-#define dike_qtree_capture_add_bound(a, b, c)        do { } while (0)
+#define dike_qtree_capture_destroy(a)                   do { } while (0)
+#define dike_qtree_capture_create(a, b, c, d)           do { } while (0)
+#define dike_qtree_capture_add_bound(a, b, c)           do { } while (0)
 #define dike_qtree_capture_check_bound(a, b)            do { } while (0)
 
 static __attribute__ ((__unused__)) void dike_qtree_bucket_destroy (struct dike_qtree_bucket *bucket)
@@ -687,6 +687,8 @@ int DikeMethodQuadTreePrivate::DikeMethodQuadTreePrivateCalculateQuadTreeCompare
 
         tpoint = (DikePoint *) context;
         rpoint = (DikePoint *) data;
+
+        dikeErrorf("radius: %d", radius);
 
         dist = DikePoint::DikePointDistanceEuclidean(tpoint, rpoint);
         if (dist <= radius) {
