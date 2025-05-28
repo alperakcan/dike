@@ -630,11 +630,15 @@ public:
         int addTrack (DikePath *path);
         int addRecord (DikePath *path);
 
+        int setCoverageRadius (int radius);
+
         std::tuple<int, int, int, double, double> calculate (void);
 
 private:
         std::vector<DikePath *> _tracks;
         std::vector<DikePath *> _records;
+
+        int _coverageRadius;
 
         static int DikeMethodQuadTreePrivateCalculateQuadTreeCompare (void *context, dike_bound *bound, void *data);
 };
@@ -664,6 +668,12 @@ int DikeMethodQuadTreePrivate::addTrack (DikePath *path)
 int DikeMethodQuadTreePrivate::addRecord (DikePath *path)
 {
         _records.push_back(path->incref());
+        return 0;
+}
+
+int DikeMethodQuadTreePrivate::setCoverageRadius (int coverageRadius)
+{
+        _coverageRadius = coverageRadius;
         return 0;
 }
 
@@ -751,10 +761,10 @@ std::tuple<int, int, int, double, double> DikeMethodQuadTreePrivate::calculate (
                         pts += 1;
                         dts += (ppoint == NULL) ? 0 : DikePoint::DikePointDistanceEuclidean(&std::get<1>(*ppoint), &std::get<1>(*tpoint));
 
-                        DikePoint spoint = DikePoint::DikePointCalculateDerivedPosition(&std::get<1>(*tpoint), 250.0, -180.0);
-                        DikePoint wpoint = DikePoint::DikePointCalculateDerivedPosition(&std::get<1>(*tpoint), 250.0, -90.0);
-                        DikePoint epoint = DikePoint::DikePointCalculateDerivedPosition(&std::get<1>(*tpoint), 250.0, 90.0);
-                        DikePoint npoint = DikePoint::DikePointCalculateDerivedPosition(&std::get<1>(*tpoint), 250.0, 0.0);
+                        DikePoint spoint = DikePoint::DikePointCalculateDerivedPosition(&std::get<1>(*tpoint), _coverageRadius, -180.0);
+                        DikePoint wpoint = DikePoint::DikePointCalculateDerivedPosition(&std::get<1>(*tpoint), _coverageRadius, -90.0);
+                        DikePoint epoint = DikePoint::DikePointCalculateDerivedPosition(&std::get<1>(*tpoint), _coverageRadius, 90.0);
+                        DikePoint npoint = DikePoint::DikePointCalculateDerivedPosition(&std::get<1>(*tpoint), _coverageRadius, 0.0);
 
                         dikeTracef("- tpoint: %.7f, %.7f", std::get<1>(*tpoint).lon(), std::get<1>(*tpoint).lat());
                         dikeTracef("  spoint: %.7f, %.7f", spoint.lon(), spoint.lat());
@@ -795,6 +805,7 @@ DikeMethodQuadTree::DikeMethodQuadTree (const DikeMethodOptions &options)
         : DikeMethod(options)
 {
         _private = new DikeMethodQuadTreePrivate();
+        _private->setCoverageRadius(getCoverageRadius());
 }
 
 DikeMethodQuadTree::~DikeMethodQuadTree (void)
