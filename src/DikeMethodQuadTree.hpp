@@ -10,7 +10,7 @@ class DikeMethodQuadTreePrivate;
 class DikeMethodQuadTree:
         public DikeMethod {
 public:
-        DikeMethodQuadTree (void);
+        DikeMethodQuadTree (const DikeMethodOptions &options);
         virtual ~DikeMethodQuadTree (void);
 
         virtual int addTrack (DikePath *path);

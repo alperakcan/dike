@@ -791,7 +791,8 @@ bail:
         return std::tuple<int, int, int, double, double>(-1, 0, 0, 0, 0);
 }
 
-DikeMethodQuadTree::DikeMethodQuadTree (void)
+DikeMethodQuadTree::DikeMethodQuadTree (const DikeMethodOptions &options)
+        : DikeMethod(options)
 {
         _private = new DikeMethodQuadTreePrivate();
 }

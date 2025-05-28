@@ -6,6 +6,14 @@
 
 #include "DikePath.hpp"
 
+class DikeMethodOptions {
+public:
+        DikeMethodOptions (void);
+        ~DikeMethodOptions (void);
+
+        int coverageRadius;
+};
+
 class DikeMethod {
 public:
         typedef enum : int32_t {
@@ -22,7 +30,7 @@ public:
                 CalculateFieldTotalDistance     = 4
         } CalculateField;
 
-        DikeMethod (void);
+        DikeMethod (const DikeMethodOptions &options);
         virtual ~DikeMethod (void);
 
         virtual int addTrack (DikePath &path);
@@ -33,12 +41,15 @@ public:
 
         virtual std::tuple<int, int, int, double, double> calculate (void) = 0;
 
-        static DikeMethod * DikeMethodCreateWithType (DikeMethod::Type type);
-        static DikeMethod * DikeMethodCreateWithType (std::string &type);
-        static DikeMethod * DikeMethodCreateWithType (const char *type);
+        static DikeMethod * DikeMethodCreateWithType (DikeMethod::Type type, const DikeMethodOptions &options);
+        static DikeMethod * DikeMethodCreateWithType (std::string &type, const DikeMethodOptions &options);
+        static DikeMethod * DikeMethodCreateWithType (const char *type, const DikeMethodOptions &options);
 
         static DikeMethod::Type DikeMethodTypeFromString (std::string &type);
         static DikeMethod::Type DikeMethodTypeFromString (const char *type);
+
+private:
+        int _coverageRadius;
 };
 
 #endif

@@ -10,7 +10,7 @@ class DikeMethodBruteForcePrivate;
 class DikeMethodBruteForce:
         public DikeMethod {
 public:
-        DikeMethodBruteForce (void);
+        DikeMethodBruteForce (const DikeMethodOptions &options);
         virtual ~DikeMethodBruteForce (void);
 
         virtual int addTrack (DikePath *path);

@@ -121,7 +121,8 @@ std::tuple<int, int, int, double, double>  DikeMethodBruteForcePrivate::calculat
         return std::tuple<int, int, int, double, double>(0, mpts, pts, mdts, dts);
 }
 
-DikeMethodBruteForce::DikeMethodBruteForce (void)
+DikeMethodBruteForce::DikeMethodBruteForce (const DikeMethodOptions &options)
+        : DikeMethod(options)
 {
         _private = new DikeMethodBruteForcePrivate();
 }

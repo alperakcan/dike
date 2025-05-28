@@ -10,9 +10,19 @@
 #include "DikeMethodBruteForce.hpp"
 #include "DikeMethodQuadTree.hpp"
 
-DikeMethod::DikeMethod (void)
+DikeMethodOptions::DikeMethodOptions (void)
+{
+        coverageRadius = 250;
+}
+
+DikeMethodOptions::~DikeMethodOptions (void)
 {
 
+}
+
+DikeMethod::DikeMethod (const DikeMethodOptions &options)
+{
+        _coverageRadius = options.coverageRadius;
 }
 
 DikeMethod::~DikeMethod (void)
@@ -30,26 +40,26 @@ int DikeMethod::addRecord (DikePath &path)
         return addRecord(&path);
 }
 
-DikeMethod * DikeMethod::DikeMethodCreateWithType (DikeMethod::Type type)
+DikeMethod * DikeMethod::DikeMethodCreateWithType (DikeMethod::Type type, const DikeMethodOptions &options)
 {
         if (type == DikeMethod::TypeBruteForce) {
-                return new DikeMethodBruteForce();
+                return new DikeMethodBruteForce(options);
         }
         if (type == DikeMethod::TypeQuadTree) {
-                return new DikeMethodQuadTree();
+                return new DikeMethodQuadTree(options);
         }
         dikeErrorf("type: %d is invalid", type);
         return NULL;
 }
 
-DikeMethod * DikeMethod::DikeMethodCreateWithType (std::string &type)
+DikeMethod * DikeMethod::DikeMethodCreateWithType (std::string &type, const DikeMethodOptions &options)
 {
-        return DikeMethodCreateWithType(DikeMethodTypeFromString(type));
+        return DikeMethodCreateWithType(DikeMethodTypeFromString(type), options);
 }
 
-DikeMethod * DikeMethod::DikeMethodCreateWithType (const char *type)
+DikeMethod * DikeMethod::DikeMethodCreateWithType (const char *type, const DikeMethodOptions &options)
 {
-        return DikeMethodCreateWithType(DikeMethodTypeFromString(type));
+        return DikeMethodCreateWithType(DikeMethodTypeFromString(type), options);
 }
 
 DikeMethod::Type DikeMethod::DikeMethodTypeFromString (std::string &type)

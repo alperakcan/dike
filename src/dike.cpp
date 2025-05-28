@@ -11,40 +11,44 @@
 #include "DikeMethod.hpp"
 #include "DikePath.hpp"
 
-#define OPTION_HELP     'h'
-#define OPTION_DEBUG    'd'
-#define OPTION_METHOD   'm'
-#define OPTION_TRACK    't'
-#define OPTION_RECORD   'r'
+#define OPTION_HELP                     'h'
+#define OPTION_DEBUG                    'd'
+#define OPTION_METHOD                   'm'
+#define OPTION_TRACK                    't'
+#define OPTION_RECORD                   'r'
+#define OPTION_COVERAGE_RADIUS          'c'
 
-#define OPTION_DEBUG_DEFAULT    "info"
-#define OPTION_METHOD_DEFAULT   "quadtree"
+#define OPTION_DEBUG_DEFAULT            "info"
+#define OPTION_METHOD_DEFAULT           "quadtree"
+#define OPTION_COVERAGE_RADIUS_DEFAULT  250
 
 static struct option long_options[] = {
-        { "help",       no_argument,            NULL,   OPTION_HELP     },
-        { "debug",      required_argument,      NULL,   OPTION_DEBUG    },
-        { "method",     required_argument,      NULL,   OPTION_METHOD   },
-        { "track",      required_argument,      NULL,   OPTION_TRACK    },
-        { "record",     required_argument,      NULL,   OPTION_RECORD   }
+        { "help",               no_argument,            NULL,   OPTION_HELP             },
+        { "debug",              required_argument,      NULL,   OPTION_DEBUG            },
+        { "method",             required_argument,      NULL,   OPTION_METHOD           },
+        { "track",              required_argument,      NULL,   OPTION_TRACK            },
+        { "record",             required_argument,      NULL,   OPTION_RECORD           },
+        { "coverageRadius",     required_argument,      NULL,   OPTION_COVERAGE_RADIUS  }
 };
 
 static void print_usage (const char *pname)
 {
         fprintf(stdout, "Usage: %s [OPTION]...\n", pname);
-        fprintf(stdout, "  -d, --debug  : debug level (default: %s)\n", OPTION_DEBUG_DEFAULT);
-        fprintf(stdout, "                 silent\n");
-        fprintf(stdout, "                 error\n");
-        fprintf(stdout, "                 warning\n");
-        fprintf(stdout, "                 notice\n");
-        fprintf(stdout, "                 info\n");
-        fprintf(stdout, "                 debug\n");
-        fprintf(stdout, "                 trace\n");
-        fprintf(stdout, "  -m, --method : method to calculate truth (default: %s)\n", OPTION_METHOD_DEFAULT);
-        fprintf(stdout, "                 bruteforce\n");
-        fprintf(stdout, "                 quadtree\n");
-        fprintf(stdout, "  -t, --track  : base route to compare with\n");
-        fprintf(stdout, "  -r, --record:: recorded route to calculate truth\n");
-        fprintf(stdout, "  -h, --help   : this text\n");
+        fprintf(stdout, "  -d, --debug          : debug level (default: %s)\n", OPTION_DEBUG_DEFAULT);
+        fprintf(stdout, "                         silent\n");
+        fprintf(stdout, "                         error\n");
+        fprintf(stdout, "                         warning\n");
+        fprintf(stdout, "                         notice\n");
+        fprintf(stdout, "                         info\n");
+        fprintf(stdout, "                         debug\n");
+        fprintf(stdout, "                         trace\n");
+        fprintf(stdout, "  -m, --method         : method to calculate truth (default: %s)\n", OPTION_METHOD_DEFAULT);
+        fprintf(stdout, "                         bruteforce\n");
+        fprintf(stdout, "                         quadtree\n");
+        fprintf(stdout, "  -t, --track          : base route to compare with\n");
+        fprintf(stdout, "  -r, --record         : recorded route to calculate truth\n");
+        fprintf(stdout, "  -c, --coverageRadius : coverage radius (default: %d meters)\n", OPTION_COVERAGE_RADIUS_DEFAULT);
+        fprintf(stdout, "  -h, --help           : this text\n");
 }
 
 int main (int argc, char **argv)
@@ -59,14 +63,17 @@ int main (int argc, char **argv)
         std::string o_method;
         std::vector<std::string> o_tracks;
         std::vector<std::string> o_records;
+        int o_coverageRadius;
 
         DikeMethod *method;
+        DikeMethodOptions options;
         std::tuple<int, int, int, double, double> calc;
 
         rs = 0;
         method = NULL;
 
-        o_method = OPTION_METHOD_DEFAULT;
+        o_method        = OPTION_METHOD_DEFAULT;
+        o_coverageRadius= OPTION_COVERAGE_RADIUS_DEFAULT;
 
         DikeDebugInit();
         DikeDebugSetLevel(DikeDebugLevelFromString(OPTION_DEBUG_DEFAULT));
@@ -87,6 +94,9 @@ int main (int argc, char **argv)
                                 break;
                         case OPTION_RECORD:
                                 o_records.push_back(optarg);
+                                break;
+                        case OPTION_COVERAGE_RADIUS:
+                                o_coverageRadius = atoi(optarg);
                                 break;
                 }
         }
@@ -111,7 +121,10 @@ int main (int argc, char **argv)
                 dikeInfof("    - %s", o_records[i].c_str());
         }
 
-        method = DikeMethod::DikeMethodCreateWithType(o_method);
+        options = DikeMethodOptions();
+        options.coverageRadius = o_coverageRadius;
+
+        method = DikeMethod::DikeMethodCreateWithType(o_method, options);
         if (method == NULL) {
                 dikeErrorf("can not create method: %s", o_method.c_str());
                 goto bail;
