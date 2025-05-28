@@ -304,7 +304,7 @@ static int dike_qtree_bucket_traverse (
         return 0;
 }
 
-static __attribute__ ((__unused__)) int dike_qtree_bucket_check_bound (struct dike_qtree_bucket *bucket, struct dike_bound *bound, int (*compare) (void *context, dike_bound *bound, void *data), void *context)
+static __attribute__ ((__unused__)) int dike_qtree_bucket_check_bound (struct dike_qtree_bucket *bucket, struct dike_bound *bound, int (*compare) (void *context, dike_bound *bound, void *data, int radius), void *context, int radius)
 {
         unsigned long long c;
         unsigned long long b;
@@ -321,13 +321,13 @@ static __attribute__ ((__unused__)) int dike_qtree_bucket_check_bound (struct di
                 if (dike_bound_intersects(&item->bound, bound)) {
                         if (compare == NULL) {
                                 return 1;
-                        } else if (compare(context, &item->bound, item->data)) {
+                        } else if (compare(context, &item->bound, item->data, radius)) {
                                 return 1;
                         }
                 }
         }
         for (c = 0; c < 4; c++) {
-                if (dike_qtree_bucket_check_bound(bucket->childs[c], bound, compare, context)) {
+                if (dike_qtree_bucket_check_bound(bucket->childs[c], bound, compare, context, radius)) {
                         return 1;
                 }
         }
@@ -565,7 +565,7 @@ static __attribute__ ((__unused__)) int dike_qtree_add_bound (struct dike_qtree 
 bail:   return -1;
 }
 
-static __attribute__ ((__unused__)) int dike_qtree_check_bound (struct dike_qtree *qtree, struct dike_bound *bound, int (*compare) (void *context, dike_bound *bound, void *data), void *context)
+static __attribute__ ((__unused__)) int dike_qtree_check_bound (struct dike_qtree *qtree, struct dike_bound *bound, int (*compare) (void *context, dike_bound *bound, void *data, int radius), void *context, int radius)
 {
         if (qtree == NULL) {
                 dikeErrorf("qtree is invalid");
@@ -576,7 +576,7 @@ static __attribute__ ((__unused__)) int dike_qtree_check_bound (struct dike_qtre
                 goto bail;
         }
         dike_qtree_capture_check_bound(qtree, bound);
-        return dike_qtree_bucket_check_bound(qtree->root, bound, compare, context);
+        return dike_qtree_bucket_check_bound(qtree->root, bound, compare, context, radius);
 bail:   return -1;
 }
 
@@ -640,7 +640,7 @@ private:
 
         int _coverageRadius;
 
-        static int DikeMethodQuadTreePrivateCalculateQuadTreeCompare (void *context, dike_bound *bound, void *data);
+        static int DikeMethodQuadTreePrivateCalculateQuadTreeCompare (void *context, dike_bound *bound, void *data, int radius);
 };
 
 DikeMethodQuadTreePrivate::DikeMethodQuadTreePrivate (void)
@@ -677,7 +677,7 @@ int DikeMethodQuadTreePrivate::setCoverageRadius (int coverageRadius)
         return 0;
 }
 
-int DikeMethodQuadTreePrivate::DikeMethodQuadTreePrivateCalculateQuadTreeCompare (void *context, dike_bound *bound, void *data)
+int DikeMethodQuadTreePrivate::DikeMethodQuadTreePrivateCalculateQuadTreeCompare (void *context, dike_bound *bound, void *data, int radius)
 {
         double dist;
         DikePoint *tpoint;
@@ -689,7 +689,7 @@ int DikeMethodQuadTreePrivate::DikeMethodQuadTreePrivateCalculateQuadTreeCompare
         rpoint = (DikePoint *) data;
 
         dist = DikePoint::DikePointDistanceEuclidean(tpoint, rpoint);
-        if (dist <= 250.00) {
+        if (dist <= radius) {
                 return 1;
         }
         return 0;
@@ -779,7 +779,7 @@ std::tuple<int, int, int, double, double> DikeMethodQuadTreePrivate::calculate (
                         tbound = dike_bound_union_xy(&tbound, epoint.lon(), epoint.lat());
                         tbound = dike_bound_union_xy(&tbound, npoint.lon(), npoint.lat());
 
-                        rc = dike_qtree_check_bound(qtree, &tbound, DikeMethodQuadTreePrivateCalculateQuadTreeCompare, &std::get<1>(*tpoint));
+                        rc = dike_qtree_check_bound(qtree, &tbound, DikeMethodQuadTreePrivateCalculateQuadTreeCompare, &std::get<1>(*tpoint), _coverageRadius);
                         if (rc == 1) {
                                 if (pmpts) {
                                         mpts += 1;
