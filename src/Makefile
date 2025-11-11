@@ -74,7 +74,7 @@ DikeWasm.js: wasm.cpp ${dike${target_extension}_sources-y} Makefile
 	  -s NO_EXIT_RUNTIME=1 \
 	  -s ALLOW_MEMORY_GROWTH=1 \
 	  -s EXPORTED_FUNCTIONS='["_malloc", "_free", "_create", "_destroy", "_reset", "_setMethod", "_addTrack", "_addRecord", "_calculate"]' \
-	  -s EXPORTED_RUNTIME_METHODS='["getValue", "cwrap"]' \
+	  -s EXPORTED_RUNTIME_METHODS='["HEAPU8", "getValue", "cwrap"]' \
 	  --minify 0 \
 	  -lzip \
 	  -lexpat \
@@ -93,7 +93,7 @@ DikeWasmES6.js: wasm.cpp ${dike${target_extension}_sources-y} Makefile
 	  -s NO_EXIT_RUNTIME=1 \
 	  -s ALLOW_MEMORY_GROWTH=1 \
 	  -s EXPORTED_FUNCTIONS='["_malloc", "_free", "_create", "_destroy", "_reset", "_setMethod", "_addTrack", "_addRecord", "_calculate"]' \
-	  -s EXPORTED_RUNTIME_METHODS='["getValue", "cwrap"]' \
+	  -s EXPORTED_RUNTIME_METHODS='["HEAPU8", "getValue", "cwrap"]' \
 	  --minify 0 \
 	  -lzip \
 	  -lexpat \
