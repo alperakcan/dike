@@ -59,6 +59,7 @@ bail:   return -1;
 extern "C" int setMethod (struct dike *dike, const char *method)
 {
         int rc;
+        DikeMethodOptions options;
 
         if (dike == NULL) {
                 dikeErrorf("dike is invalid");
@@ -74,7 +75,10 @@ extern "C" int setMethod (struct dike *dike, const char *method)
                 dike->method = NULL;
         }
 
-        dike->method = DikeMethod::DikeMethodCreateWithType(method);
+        options = DikeMethodOptions();
+        options.coverageRadius = 250;
+
+        dike->method = DikeMethod::DikeMethodCreateWithType(method, options);
         if (dike->method == NULL) {
                 dikeErrorf("can not create method: %s", method);
                 goto bail;

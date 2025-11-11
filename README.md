@@ -37,6 +37,25 @@ This application is designed for RideTurkey to compare recorded routes with the 
         CMAKE="emcmake cmake" \
         CXX=em++
 
+## nginx
+
+types {
+    application/wasm wasm;
+}
+
+server {
+    listen       80;
+    server_name  _;
+
+    root /var/www/html;
+
+    location /dike/ {
+        alias /home/distch/workspace/alperakcan/dike.git/src/;
+        index index.html;
+        try_files $uri $uri/ =404;
+    }
+}
+
 ### emscripten
 
 #### clone

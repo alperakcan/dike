@@ -30,12 +30,12 @@ config: patch
 	      rm -rf ../zip/build && \
 	      mkdir -p ../zip/build && \
 	      cd ../zip/build && \
-	      CFLAGS="-g ${ARCHFLAGS} ${CFLAGS} -Wno-strict-prototypes" \
+	      CFLAGS="-g ${ARCHFLAGS} ${CFLAGS} -Wno-unknown-warning-option -Wno-strict-prototypes -Wno-calloc-transposed-args" \
 	      LDFLAGS="${LDFLAGS}" \
 	      MAKEFLAGS= \
 	      CC=${CROSS_COMPILE_PREFIX}gcc \
 	      ${CMAKE} \
-	      	-DCMAKE_INSTALL_PREFIX=/usr/local \
+	        -DCMAKE_INSTALL_PREFIX=/usr/local \
 	        -DCMAKE_DISABLE_TESTING=ON \
 	        .. \
 	  ) && \
