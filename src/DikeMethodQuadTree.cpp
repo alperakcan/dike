@@ -688,8 +688,6 @@ int DikeMethodQuadTreePrivate::DikeMethodQuadTreePrivateCalculateQuadTreeCompare
         tpoint = (DikePoint *) context;
         rpoint = (DikePoint *) data;
 
-        dikeErrorf("radius: %d", radius);
-
         dist = DikePoint::DikePointDistanceEuclidean(tpoint, rpoint);
         if (dist <= radius) {
                 return 1;
