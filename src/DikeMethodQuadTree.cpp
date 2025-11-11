@@ -784,6 +784,8 @@ std::tuple<int, int, int, double, double> DikeMethodQuadTreePrivate::calculate (
                                 if (pmpts) {
                                         mpts += 1;
                                         mdts += (ppoint == NULL) ? 0 : DikePoint::DikePointDistanceEuclidean(&std::get<1>(*ppoint), &std::get<1>(*tpoint));
+                                } else if (j == 0) {
+                                        mpts += 1;
                                 }
                         }
                         pmpts = rc;
