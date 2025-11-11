@@ -56,7 +56,7 @@ extern "C" int reset (struct dike *dike)
 bail:   return -1;
 }
 
-extern "C" int setMethod (struct dike *dike, const char *method)
+extern "C" int setMethod (struct dike *dike, const char *method, int coverageRadius)
 {
         int rc;
         DikeMethodOptions options;
@@ -75,8 +75,13 @@ extern "C" int setMethod (struct dike *dike, const char *method)
                 dike->method = NULL;
         }
 
+        if (coverageRadius < 0) {
+                dikeErrorf("coverageRadius: %d is invalid", coverageRadius);
+                goto bail;
+        }
+
         options = DikeMethodOptions();
-        options.coverageRadius = 250;
+        options.coverageRadius = coverageRadius;
 
         dike->method = DikeMethod::DikeMethodCreateWithType(method, options);
         if (dike->method == NULL) {
