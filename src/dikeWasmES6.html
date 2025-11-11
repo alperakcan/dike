@@ -200,6 +200,12 @@
 
                                 load = 0;
 
+                                if (dikeTracks.length == 0 && dikeRecords.length == 0) {
+                                        dikeResult.innerHTML = "Add base tracks and route records, then kick 'Calculate'.";
+                                        outputDike.innerHTML = "No tracks or records to process.<br>";
+                                        return;
+                                }
+
                                 dikeResult.innerHTML = "Calculating...";
                                 window.scrollTo(0, 0);
 
