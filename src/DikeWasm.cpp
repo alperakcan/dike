@@ -9,60 +9,59 @@
 #include "DikeMethod.hpp"
 #include "DikePath.hpp"
 
-struct dike {
+struct DikeCalculate {
         DikeMethod *method;
 };
 
-extern "C" int destroy (struct dike *dike)
+extern "C" int calculateDestroy (struct DikeCalculate *dikeCalculate)
 {
-        if (dike != NULL) {
-                if (dike->method != NULL) {
-                        delete dike->method;
+        if (dikeCalculate != NULL) {
+                if (dikeCalculate->method != NULL) {
+                        delete dikeCalculate->method;
                 }
-                free(dike);
+                free(dikeCalculate);
         }
         return 0;
 }
 
-extern "C" struct dike * create (void)
+extern "C" struct DikeCalculate * calculateCreate (void)
 {
-        struct dike *dike;
+        struct DikeCalculate *dikeCalculate;
 
-        dike = (struct dike *) malloc(sizeof(struct dike));
-        if (dike == NULL) {
+        dikeCalculate = (struct DikeCalculate *) malloc(sizeof(struct DikeCalculate));
+        if (dikeCalculate == NULL) {
                 dikeErrorf("can not allocate memory");
                 goto bail;
         }
-        memset(dike, 0, sizeof(struct dike));
-
-        return dike;
-bail:   if (dike != NULL) {
-                destroy(dike);
+        memset(dikeCalculate, 0, sizeof(struct DikeCalculate));
+        return dikeCalculate;
+bail:   if (dikeCalculate != NULL) {
+                calculateDestroy(dikeCalculate);
         }
         return NULL;
 }
 
-extern "C" int reset (struct dike *dike)
+extern "C" int calculateReset (struct DikeCalculate *dikeCalculate)
 {
-        if (dike == NULL) {
-                dikeErrorf("dike is invalid");
+        if (dikeCalculate == NULL) {
+                dikeErrorf("dikeCalculate is invalid");
                 goto bail;
         }
-        if (dike->method != NULL) {
-                delete dike->method;
-                dike->method = NULL;
+        if (dikeCalculate->method != NULL) {
+                delete dikeCalculate->method;
+                dikeCalculate->method = NULL;
         }
         return 0;
 bail:   return -1;
 }
 
-extern "C" int setMethod (struct dike *dike, const char *method, int coverageRadius)
+extern "C" int calculateSetMethod (struct DikeCalculate *dikeCalculate, const char *method, int coverageRadius)
 {
         int rc;
         DikeMethodOptions options;
 
-        if (dike == NULL) {
-                dikeErrorf("dike is invalid");
+        if (dikeCalculate == NULL) {
+                dikeErrorf("dikeCalculate is invalid");
                 goto bail;
         }
         if (method == NULL) {
@@ -70,9 +69,9 @@ extern "C" int setMethod (struct dike *dike, const char *method, int coverageRad
                 goto bail;
         }
 
-        if (dike->method != NULL) {
-                delete dike->method;
-                dike->method = NULL;
+        if (dikeCalculate->method != NULL) {
+                delete dikeCalculate->method;
+                dikeCalculate->method = NULL;
         }
 
         if (coverageRadius < 0) {
@@ -83,8 +82,8 @@ extern "C" int setMethod (struct dike *dike, const char *method, int coverageRad
         options = DikeMethodOptions();
         options.coverageRadius = coverageRadius;
 
-        dike->method = DikeMethod::DikeMethodCreateWithType(method, options);
-        if (dike->method == NULL) {
+        dikeCalculate->method = DikeMethod::DikeMethodCreateWithType(method, options);
+        if (dikeCalculate->method == NULL) {
                 dikeErrorf("can not create method: %s", method);
                 goto bail;
         }
@@ -93,15 +92,15 @@ extern "C" int setMethod (struct dike *dike, const char *method, int coverageRad
 bail:   return -1;
 }
 
-extern "C" int addTrack (struct dike *dike, const char *buffer, int length)
+extern "C" int calculateAddTrack (struct DikeCalculate *dikeCalculate, const char *buffer, int length)
 {
         int rc;
         DikePath *path;
 
         path = NULL;
 
-        if (dike == NULL) {
-                dikeErrorf("dike is invalid");
+        if (dikeCalculate == NULL) {
+                dikeErrorf("dikeCalculate is invalid");
                 goto bail;
         }
         if (buffer == NULL) {
@@ -113,7 +112,7 @@ extern "C" int addTrack (struct dike *dike, const char *buffer, int length)
                 goto bail;
         }
 
-        if (dike->method == NULL) {
+        if (dikeCalculate->method == NULL) {
                 dikeErrorf("dike method is invalid");
                 goto bail;
         }
@@ -123,7 +122,7 @@ extern "C" int addTrack (struct dike *dike, const char *buffer, int length)
                 dikeErrorf("can not create path");
                 goto bail;
         }
-        rc = dike->method->addTrack(path);
+        rc = dikeCalculate->method->addTrack(path);
         if (rc < 0) {
                 dikeErrorf("can not add buffer");
                 goto bail;
@@ -137,15 +136,15 @@ bail:   if (path != NULL) {
         return -1;
 }
 
-extern "C" int addRecord (struct dike *dike, const char *buffer, int length)
+extern "C" int calculateAddRecord (struct DikeCalculate *dikeCalculate, const char *buffer, int length)
 {
         int rc;
         DikePath *path;
 
         path = NULL;
 
-        if (dike == NULL) {
-                dikeErrorf("dike is invalid");
+        if (dikeCalculate == NULL) {
+                dikeErrorf("dikeCalculate is invalid");
                 goto bail;
         }
         if (buffer == NULL) {
@@ -157,8 +156,8 @@ extern "C" int addRecord (struct dike *dike, const char *buffer, int length)
                 goto bail;
         }
 
-        if (dike->method == NULL) {
-                dikeErrorf("dike method is invalid");
+        if (dikeCalculate->method == NULL) {
+                dikeErrorf("dikeCalculate method is invalid");
                 goto bail;
         }
 
@@ -167,7 +166,7 @@ extern "C" int addRecord (struct dike *dike, const char *buffer, int length)
                 dikeErrorf("can not create path");
                 goto bail;
         }
-        rc = dike->method->addRecord(path);
+        rc = dikeCalculate->method->addRecord(path);
         if (rc < 0) {
                 dikeErrorf("can not add buffer");
                 goto bail;
@@ -181,28 +180,28 @@ bail:   if (path != NULL) {
         return -1;
 }
 
-struct calculateResult {
+struct DikeCalculateResult {
         int32_t matched_points;
         int32_t total_points;
         double matched_distance;
         double total_distance;
 };
 
-extern "C" struct calculateResult * calculate (struct dike *dike)
+extern "C" struct DikeCalculateResult * calculateCalculate (struct DikeCalculate *dikeCalculate)
 {
-        struct calculateResult *calculateResult;
+        struct DikeCalculateResult *calculateResult;
         std::tuple<int, int, int, double, double> calc;
 
-        if (dike == NULL) {
-                dikeErrorf("dike is invalid");
+        if (dikeCalculate == NULL) {
+                dikeErrorf("dikeCalculate is invalid");
                 goto bail;
         }
-        if (dike->method == NULL) {
-                dikeErrorf("dike method is invalid");
+        if (dikeCalculate->method == NULL) {
+                dikeErrorf("dikeCalculate method is invalid");
                 goto bail;
         }
 
-        calc = dike->method->calculate();
+        calc = dikeCalculate->method->calculate();
         if (std::get<DikeMethod::CalculateFieldStatus>(calc) < 0) {
                 dikeErrorf("can not calculate");
                 goto bail;
@@ -218,7 +217,7 @@ extern "C" struct calculateResult * calculate (struct dike *dike)
                 std::get<DikeMethod::CalculateFieldTotalDistance>(calc));
 
 
-        calculateResult = (struct calculateResult *) malloc(sizeof(struct calculateResult));
+        calculateResult = (struct DikeCalculateResult *) malloc(sizeof(struct DikeCalculateResult));
         calculateResult->matched_points   = std::get<DikeMethod::CalculateFieldMatchedPoints>(calc);
         calculateResult->total_points     = std::get<DikeMethod::CalculateFieldTotalPoints>(calc);
         calculateResult->matched_distance = std::get<DikeMethod::CalculateFieldMatchedDistance>(calc);

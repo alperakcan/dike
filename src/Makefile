@@ -97,7 +97,7 @@ DikeWasm.js: DikeWasm.cpp ${Dike_files-y} Makefile
 	  -s ASSERTIONS=0 \
 	  -s NO_EXIT_RUNTIME=1 \
 	  -s ALLOW_MEMORY_GROWTH=1 \
-	  -s EXPORTED_FUNCTIONS='["_malloc", "_free", "_create", "_destroy", "_reset", "_setMethod", "_addTrack", "_addRecord", "_calculate"]' \
+	  -s EXPORTED_FUNCTIONS='["_malloc", "_free", "_calculateCreate", "_calculateDestroy", "_calculateReset", "_calculateSetMethod", "_calculateAddTrack", "_calculateAddRecord", "_calculateCalculate"]' \
 	  -s EXPORTED_RUNTIME_METHODS='["HEAPU8", "getValue", "cwrap"]' \
 	  --minify 0 \
 	  -lzip \
@@ -116,7 +116,7 @@ DikeWasmES6.js: DikeWasm.cpp ${Dike_files-y} Makefile
 	  -s ASSERTIONS=0 \
 	  -s NO_EXIT_RUNTIME=1 \
 	  -s ALLOW_MEMORY_GROWTH=1 \
-	  -s EXPORTED_FUNCTIONS='["_malloc", "_free", "_create", "_destroy", "_reset", "_setMethod", "_addTrack", "_addRecord", "_calculate"]' \
+	  -s EXPORTED_FUNCTIONS='["_malloc", "_free", "_calculateCreate", "_calculateDestroy", "_calculateReset", "_calculateSetMethod", "_calculateAddTrack", "_calculateAddRecord", "_calculateCalculate"]' \
 	  -s EXPORTED_RUNTIME_METHODS='["HEAPU8", "getValue", "cwrap"]' \
 	  --minify 0 \
 	  -lzip \
