@@ -9,6 +9,13 @@
 #include "DikeMethod.hpp"
 #include "DikePath.hpp"
 
+struct DikeCalculateResult {
+        int32_t matched_points;
+        int32_t total_points;
+        double matched_distance;
+        double total_distance;
+};
+
 struct DikeCalculate {
         DikeMethod *method;
 };
@@ -179,13 +186,6 @@ bail:   if (path != NULL) {
         }
         return -1;
 }
-
-struct DikeCalculateResult {
-        int32_t matched_points;
-        int32_t total_points;
-        double matched_distance;
-        double total_distance;
-};
 
 extern "C" struct DikeCalculateResult * calculateCalculate (struct DikeCalculate *dikeCalculate)
 {
