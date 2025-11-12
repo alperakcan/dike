@@ -19,12 +19,15 @@ Dike_files-y += \
 	DikeMethodBruteForce.cpp \
 	DikeMethodQuadTree.cpp \
 	DikePoint.cpp \
-	DikePath.cpp
+	DikePath.cpp \
+	DikeProjection.cpp \
+	DikeProjectionMercator.cpp
 
 Dike_files-${__WINDOWS__} += \
 	strptime.c
 
 Dike_ldflags-y += \
+	-lClipper2 \
 	-lzip \
 	-lexpat \
 	-lm

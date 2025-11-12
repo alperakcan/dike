@@ -12,6 +12,7 @@
 
 #include <zip/zip.h>
 #include <expat.h>
+#include <clipper2/clipper.h>
 
 #if defined(__WINDOWS__)
 #include "strptime.h"
@@ -21,6 +22,8 @@
 #include "DikeDebug.hpp"
 #include "DikePoint.hpp"
 #include "DikePath.hpp"
+#include "DikeProjection.hpp"
+#include "DikeProjectionMercator.hpp"
 
 #if defined(__WINDOWS__)
 
@@ -895,5 +898,98 @@ gpx_bail:
                 return NULL;
         }
         dikeErrorf("buffer is invalid");
+        return NULL;
+}
+
+DikePath * DikePath::DikePathCreateInflatedFromPath (DikePath *path, int coverageRadius)
+{
+        int i;
+        int il;
+        int j;
+        int jl;
+        Clipper2Lib::Path64 bpath;
+        Clipper2Lib::Paths64 bpaths;
+
+        DikePath *ipath;
+        DikeProjectionMercator projection;
+
+        double avgLat;
+        int pointCount;
+        double latRadians;
+        double scaleFactor;
+        double adjustedRadius;
+
+        ipath = new DikePath();
+        if (ipath == NULL) {
+                dikeErrorf("can not create path");
+                goto bail;
+        }
+
+        dikeDebugf("coverageRadius: %d", coverageRadius);
+
+        avgLat = 0.0;
+        pointCount = 0;
+        for (i = 0, il = path->getPointsCount(); i < il; i++) {
+                std::tuple<DikePath::Command, DikePoint> *point;
+                point = path->getPoint(i);
+                avgLat += std::get<1>(*point).lat();
+                pointCount++;
+        }
+        if (pointCount > 0) {
+                avgLat /= pointCount;
+        }
+
+        latRadians = avgLat * M_PI / 180.0;
+        scaleFactor = std::cos(latRadians);
+        adjustedRadius = coverageRadius / scaleFactor;
+
+        dikeDebugf("avgLat: %.6f, scaleFactor: %.6f, adjustedRadius: %.2f", avgLat, scaleFactor, adjustedRadius);
+
+        for (i = 0, il = path->getPointsCount(); i < il; i++) {
+                double x;
+                double y;
+                std::tuple<DikePath::Command, DikePoint> *point;
+                point = path->getPoint(i);
+                if (std::get<0>(*point) == DikePath::CommandMoveTo) {
+                        if (bpath.size() > 0) {
+                                bpaths.emplace_back(bpath);
+                                bpath.clear();
+                        }
+                }
+                projection.forward(std::get<1>(*point).lon(), std::get<1>(*point).lat(), x, y);
+                bpath.emplace_back(x, y);
+        }
+        if (bpath.size() > 0) {
+                bpaths.emplace_back(bpath);
+                bpath.clear();
+        }
+
+        bpaths = Clipper2Lib::InflatePaths(bpaths, adjustedRadius, Clipper2Lib::JoinType::Round, Clipper2Lib::EndType::Round);
+        bpaths = Clipper2Lib::SimplifyPaths(bpaths, 0.025);
+        bpaths = Clipper2Lib::Union(bpaths, Clipper2Lib::FillRule::Positive);
+        bpaths = Clipper2Lib::SimplifyPaths(bpaths, 0.025);
+        for (i = 0, il = bpaths.size(); i < il; i++) {
+                for (j = 0, jl = bpaths[i].size(); j < jl; j++) {
+                        double lon;
+                        double lat;
+                        projection.inverse(bpaths[i][j].x, bpaths[i][j].y, lon, lat);
+                        if (j == 0) {
+                                ipath->moveTo(lon, lat);
+                        } else {
+                                ipath->lineTo(lon, lat);
+                        }
+                }
+                if (jl > 0) {
+                        double lon;
+                        double lat;
+                        projection.inverse(bpaths[i][0].x, bpaths[i][0].y, lon, lat);
+                        ipath->lineTo(lon, lat);
+                }
+        }
+        return ipath;
+bail:   if (ipath != NULL) {
+                delete ipath;
+                ipath = NULL;
+        }
         return NULL;
 }
