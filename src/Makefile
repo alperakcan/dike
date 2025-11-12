@@ -8,12 +8,12 @@ target.extra-y = \
 else
 
 target-y = \
-	dike${target_extension}
+	DikeCalculate${target_extension} \
+	DikeInflate${target_extension} \
 
 endif
 
-dike${target_extension}_sources-y += \
-	dike.cpp \
+Dike_files-y += \
 	DikeDebug.cpp \
 	DikeMethod.cpp \
 	DikeMethodBruteForce.cpp \
@@ -21,26 +21,48 @@ dike${target_extension}_sources-y += \
 	DikePoint.cpp \
 	DikePath.cpp
 
-dike${target_extension}_files-y += \
-	dike.cpp \
-	${dike${target_extension}_sources-y}
-
-dike${target_extension}_files-${__WINDOWS__} += \
+Dike_files-${__WINDOWS__} += \
 	strptime.c
 
-dike${target_extension}_ldflags-y += \
+Dike_ldflags-y += \
 	-lzip \
 	-lexpat \
 	-lm
 
-dike${target_extension}_ldflags-${__WINDOWS__} += \
+Dike_ldflags-${__WINDOWS__} += \
 	-static
 
-dike${target_extension}_includes-y += \
+Dike_includes-y += \
 	${DIKE_3RDPARTY_INSTALL_PATH}/usr/local/include
 
-dike${target_extension}_libraries-y += \
+Dike_libraries-y += \
 	${DIKE_3RDPARTY_INSTALL_PATH}/usr/local/lib
+
+DikeCalculate${target_extension}_files-y += \
+	${Dike_files-y} \
+	DikeCalculate.cpp
+
+DikeCalculate${target_extension}_ldflags-y += \
+	${Dike_ldflags-y}
+
+DikeCalculate${target_extension}_includes-y += \
+	${Dike_includes-y}
+
+DikeCalculate${target_extension}_libraries-y += \
+	${Dike_libraries-y}
+
+DikeInflate${target_extension}_files-y += \
+	${Dike_files-y} \
+	DikeInflate.cpp
+
+DikeInflate${target_extension}_ldflags-y += \
+	${Dike_ldflags-y}
+
+DikeInflate${target_extension}_includes-y += \
+	${Dike_includes-y}
+
+DikeInflate${target_extension}_libraries-y += \
+	${Dike_libraries-y}
 
 ifeq (${__EMSDK__}, y)
 
@@ -50,19 +72,21 @@ dist.share-y    = DikeWasm.js
 dist.share-y   += DikeWasm.wasm
 dist.share-y   += DikeWasmES6.js
 dist.share-y   += DikeWasmES6.wasm
-dist.share-y   += dikeWasmES6.html
+dist.share-y   += DikeCalculate.html
+dist.share-y   += DikeInflate.html
 
 else
 
 dist.dir        = ../dist
-dist.bin-y      = dike${target_extension}
+dist.bin-y     += DikeCalculate${target_extension}
+dist.bin-y     += DikeInflate${target_extension}
 
 endif
 
 include ${DIKE_LIBMAKEFILE_PATH}/Makefile.lib
 
-DikeWasm.js: wasm.cpp ${dike${target_extension}_sources-y} Makefile
-	em++ -o DikeWasm.js wasm.cpp ${dike${target_extension}_sources-y} \
+DikeWasm.js: DikeWasm.cpp ${Dike_files-y} Makefile
+	em++ -o DikeWasm.js DikeWasm.cpp ${Dike_files-y} \
 	  -I ${DIKE_3RDPARTY_INSTALL_PATH}/usr/local/include \
 	  -L ${DIKE_3RDPARTY_INSTALL_PATH}/usr/local/lib \
 	  -O3 \
@@ -80,8 +104,8 @@ DikeWasm.js: wasm.cpp ${dike${target_extension}_sources-y} Makefile
 	  -lexpat \
 	  -lm
 
-DikeWasmES6.js: wasm.cpp ${dike${target_extension}_sources-y} Makefile
-	em++ -o DikeWasmES6.js wasm.cpp ${dike${target_extension}_sources-y} \
+DikeWasmES6.js: DikeWasm.cpp ${Dike_files-y} Makefile
+	em++ -o DikeWasmES6.js DikeWasm.cpp ${Dike_files-y} \
 	  -I ${DIKE_3RDPARTY_INSTALL_PATH}/usr/local/include \
 	  -L ${DIKE_3RDPARTY_INSTALL_PATH}/usr/local/lib \
 	  -O3 \
