@@ -6,6 +6,7 @@ class DikeProjection {
 public:
         enum DikeProjectionType {
                 DIKE_PROJECTION_TYPE_MERCATOR,
+                DIKE_PROJECTION_TYPE_UTM,
                 DIKE_PROJECTION_TYPE_LAMBERT,
                 DIKE_PROJECTION_TYPE_UNKNOWN
         };

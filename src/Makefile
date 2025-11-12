@@ -21,6 +21,7 @@ Dike_files-y += \
 	DikePoint.cpp \
 	DikePath.cpp \
 	DikeProjection.cpp \
+	DikeProjectionUTM.cpp \
 	DikeProjectionMercator.cpp
 
 Dike_files-${__WINDOWS__} += \

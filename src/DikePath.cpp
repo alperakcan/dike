@@ -24,6 +24,7 @@
 #include "DikePath.hpp"
 #include "DikeProjection.hpp"
 #include "DikeProjectionMercator.hpp"
+#include "DikeProjectionUTM.hpp"
 
 #if defined(__WINDOWS__)
 
@@ -911,13 +912,7 @@ DikePath * DikePath::DikePathCreateInflatedFromPath (DikePath *path, int coverag
         Clipper2Lib::Paths64 bpaths;
 
         DikePath *ipath;
-        DikeProjectionMercator projection;
-
-        double avgLat;
-        int pointCount;
-        double latRadians;
-        double scaleFactor;
-        double adjustedRadius;
+        DikeProjectionUTM projection;  // UTM with auto zone detection
 
         ipath = new DikePath();
         if (ipath == NULL) {
@@ -925,26 +920,9 @@ DikePath * DikePath::DikePathCreateInflatedFromPath (DikePath *path, int coverag
                 goto bail;
         }
 
-        dikeDebugf("coverageRadius: %d", coverageRadius);
+        dikeDebugf("coverageRadius: %d meters (using UTM projection for accurate ground distance)", coverageRadius);
 
-        avgLat = 0.0;
-        pointCount = 0;
-        for (i = 0, il = path->getPointsCount(); i < il; i++) {
-                std::tuple<DikePath::Command, DikePoint> *point;
-                point = path->getPoint(i);
-                avgLat += std::get<1>(*point).lat();
-                pointCount++;
-        }
-        if (pointCount > 0) {
-                avgLat /= pointCount;
-        }
-
-        latRadians = avgLat * M_PI / 180.0;
-        scaleFactor = std::cos(latRadians);
-        adjustedRadius = coverageRadius / scaleFactor;
-
-        dikeDebugf("avgLat: %.6f, scaleFactor: %.6f, adjustedRadius: %.2f", avgLat, scaleFactor, adjustedRadius);
-
+        // Build paths - UTM handles accurate distances without correction
         for (i = 0, il = path->getPointsCount(); i < il; i++) {
                 double x;
                 double y;
@@ -964,7 +942,10 @@ DikePath * DikePath::DikePathCreateInflatedFromPath (DikePath *path, int coverag
                 bpath.clear();
         }
 
-        bpaths = Clipper2Lib::InflatePaths(bpaths, adjustedRadius, Clipper2Lib::JoinType::Round, Clipper2Lib::EndType::Round);
+        dikeDebugf("Using UTM Zone %d%c", projection.getZone(), projection.getIsNorthern() ? 'N' : 'S');
+
+        // UTM preserves accurate ground distances, so coverageRadius works directly
+        bpaths = Clipper2Lib::InflatePaths(bpaths, coverageRadius, Clipper2Lib::JoinType::Round, Clipper2Lib::EndType::Round);
         bpaths = Clipper2Lib::SimplifyPaths(bpaths, 0.025);
         bpaths = Clipper2Lib::Union(bpaths, Clipper2Lib::FillRule::Positive);
         bpaths = Clipper2Lib::SimplifyPaths(bpaths, 0.025);
