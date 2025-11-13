@@ -82,6 +82,10 @@ extern "C" int inflateReset (struct DikeInflate *dikeInflate)
                 dikeErrorf("dikeInflate is invalid");
                 goto bail;
         }
+        dikeInflate->format = DIKE_INFLATE_FORMAT_INVALID;
+        dikeInflate->coverageRadius = 0;
+        dikeInflate->tpaths.clear();
+        dikeInflate->ipaths.clear();
         return 0;
 bail:   return -1;
 }
@@ -286,6 +290,7 @@ extern "C" struct DikeInflateResult * inflateInflate (struct DikeInflate *dikeIn
                 goto bail;
         }
         memcpy(inflateResult->buffer, output.data(), inflateResult->length);
+        dikeErrorf("inflate length: %d", inflateResult->length);
 
         return inflateResult;
 bail:   if (inflateResult != NULL) {
