@@ -3,32 +3,21 @@
 
 Dike is the goddess of justice and the spirit of moral order and fair judgement as a transcendent universal ideal or based on immemorial custom, in the sense of socially enforced norms and conventional rules.
 
-## overview
+The Dike suite provides both native command-line applications for terminal use and WebAssembly-powered HTML interfaces for easy browser-based access, enabling flexible deployment across development and production environments.
+
+## calculator
 
 Dike is a route success calculator specifically designed for RideTurkey to analyze GPS tracking data and measure route compliance. This application provides an objective assessment of how closely recorded GPS tracks follow their intended planned routes, delivering success percentage calculations.
 
-## features
-
-- **Route Analysis**: Compare recorded GPS tracks against planned base routes
-- **Success Metrics**: Calculate percentage-based success rates for both point coverage and distance coverage
-- **Multiple Calculation Methods**:
-  - QuadTree algorithm for efficient spatial indexing and fast calculations
-  - Brute Force method (available for comprehensive analysis)
-- **Configurable Parameters**: Adjustable coverage radius to fine-tune matching sensitivity
-- **Web-Based Interface**: Modern, responsive web application built with Bootstrap
-- **File Support**: Upload and process multiple GPS track files simultaneously
-- **Real-Time Processing**: WebAssembly-powered calculations for optimal performance
-
-## use cases
-
-- **Route Compliance Verification**: Ensure riders follow designated paths during organized events
-- **Performance Analysis**: Measure how accurately participants navigate planned routes
-- **Quality Assessment**: Evaluate GPS tracking accuracy and route adherence
-- **Event Management**: Validate completion rates and identify deviations from planned routes
-
-## implementation
-
 The application uses advanced spatial algorithms to perform proximity-based matching between planned routes (tracks) and actual GPS recordings (records). Results include detailed statistics on matched points, total distance coverage, and comprehensive performance metrics with millisecond-precision timing information.
+
+## inflator
+
+Dike inflator creates buffer corridors around GPS tracks to generate coverage zones for route planning and analysis. It transforms linear GPS tracks (GPX/KML/KMZ) into polygon corridors with a specified coverage radius, representing the accessible area around the route.
+
+The inflator uses UTM (Universal Transverse Mercator) projection for accurate ground-distance buffering, automatically detecting the appropriate zone with support for Norway and Svalbard exceptions.
+
+Output formats include KML and GPX, with configurable coverage radius in meters. The implementation ensures coordinate precision across native and WebAssembly builds, maintaining sub-meter accuracy for geospatial applications.
 
 ## developer
 

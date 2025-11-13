@@ -290,7 +290,6 @@ extern "C" struct DikeInflateResult * inflateInflate (struct DikeInflate *dikeIn
                 goto bail;
         }
         memcpy(inflateResult->buffer, output.data(), inflateResult->length);
-        dikeErrorf("inflate length: %d", inflateResult->length);
 
         return inflateResult;
 bail:   if (inflateResult != NULL) {

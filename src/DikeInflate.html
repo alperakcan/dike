@@ -226,68 +226,85 @@
 
                         window.addEventListener("load", init, false);
                 </script>
-                <div class="container flex">
-                        <br>
-                        <h3 class="text-center">Dike : RideTurkey - Route Inflator</h3>
-                        <br>
-                        <div id="dikeResult" class="text-center">Add base tracks, then kick 'Inflate'.</div>
-                        <br>
-                        <div class="border card">
-                                <div class="card-body">
-                                        <h5 class="card-title text-center">Tracks</h5>
-                                        <br>
-                                        <div id="inputDikeTracksList" class="container text-center"></div>
-                                        <br>
-                                        <button id="inputDikeTrackAdd" type="button" class="w-100 btn btn-light">Add Track</button>
-                                        <input id="inputDikeTrackAddSelectFile" type="file" name="name" style="display: none;" multiple />
-                                </div>
-                        </div>
-                        <br>
-                        <div class="border card">
-                                <div class="card-body">
-                                        <h5 class="card-title text-center">Inflate</h5>
-                                        <br>
-                                        <table class="table table-borderless">
-                                                <tbody>
-                                                        <tr>
-                                                                <td>
-                                                                        <label for="dikeFormat" class="form-label">Inflation Format</label>
-                                                                </td>
-                                                                <td>
-                                                                        <select id="dikeFormat" class="form-control">
-                                                                                <option value="kml" selected>KML</option>
-                                                                                <option value="gpx">GPX</option>
+                <div class="container py-4">
+                        <div class="row justify-content-center">
+                                <div class="col-lg-10">
+                                        <h1 class="text-center mb-4">
+                                                <i class="bi bi-layers"></i> Dike : Route Inflator
+                                        </h1>
+
+                                        <div id="dikeResult" class="alert alert-info text-center shadow-sm mb-4" role="alert">
+                                                <i class="bi bi-info-circle"></i> Add base tracks, then kick 'Inflate'.
+                                        </div>
+
+                                        <div class="card shadow-sm mb-3">
+                                                <div class="card-body">
+                                                        <h5 class="card-title mb-3">
+                                                                <i class="bi bi-map"></i> GPS Tracks
+                                                        </h5>
+                                                        <div id="inputDikeTracksList" class="mb-3 p-3 bg-light rounded" style="min-height: 120px;">
+                                                        </div>
+                                                        <button id="inputDikeTrackAdd" type="button" class="w-100 btn btn-outline-primary">
+                                                                <i class="bi bi-plus-circle"></i> Add Track
+                                                        </button>
+                                                        <input id="inputDikeTrackAddSelectFile" type="file" name="name" style="display: none;" multiple />
+                                                        <small class="text-muted d-block mt-2">
+                                                                <i class="bi bi-file-earmark"></i> Supports GPX, KML, and KMZ files
+                                                        </small>
+                                                </div>
+                                        </div>
+
+                                        <div class="card shadow-sm mb-4">
+                                                <div class="card-body">
+                                                        <h5 class="card-title mb-4">
+                                                                <i class="bi bi-gear"></i> Inflation Settings
+                                                        </h5>
+                                                        <div class="row g-3 mb-3">
+                                                                <div class="col-md-6">
+                                                                        <label for="dikeFormat" class="form-label fw-bold">Output Format</label>
+                                                                        <select id="dikeFormat" class="form-select">
+                                                                                <option value="kml" selected>KML (Keyhole Markup Language)</option>
+                                                                                <option value="gpx">GPX (GPS Exchange Format)</option>
                                                                         </select>
-                                                                </td>
-                                                        </tr>
-                                                        <tr>
-                                                                <td>
-                                                                        <label for="dikeCoverageRadius" class="form-label">Coverage Radius (meters)</label>
-                                                                </td>
-                                                                <td>
-                                                                        <input id="dikeCoverageRadius" type="number" class="form-control" placeholder="Coverage Radius" value="250" />
-                                                                </td>
-                                                        </tr>
-                                                </tbody>
-                                        </table>
-                                        <button id="dikeInflateButton" type="button" class="w-100 btn btn-light">Shoot</button>
+                                                                        <small class="text-muted">Choose the format for the inflated corridor output</small>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                        <label for="dikeCoverageRadius" class="form-label fw-bold">Coverage Radius (meters)</label>
+                                                                        <input id="dikeCoverageRadius" type="number" class="form-control" placeholder="Coverage Radius" value="250" min="1" />
+                                                                        <small class="text-muted">Buffer distance around the track centerline</small>
+                                                                </div>
+                                                        </div>
+                                                        <button id="dikeInflateButton" type="button" class="w-100 btn btn-primary btn-lg">
+                                                                <i class="bi bi-arrow-bar-up"></i> Generate Corridor
+                                                        </button>
+                                                </div>
+                                        </div>
                                 </div>
                         </div>
                 </div>
-                <br>
-                <div class="container flex">
-                        <div class="border card">
-                                <div id="outputDike" class="card-body">
+
+                <div class="container py-3">
+                        <div class="row justify-content-center">
+                                <div class="col-lg-10">
+                                        <div class="card shadow-sm">
+                                                <div class="card-header bg-light">
+                                                        <h5 class="mb-0"><i class="bi bi-terminal"></i> Processing Output</h5>
+                                                </div>
+                                                <div id="outputDike" class="card-body font-monospace" style="min-height: 100px; font-size: 0.9rem;">
+                                                </div>
+                                        </div>
                                 </div>
                         </div>
                 </div>
-                <br>
-                <div class="text-center">
+
+                <footer class="text-center py-4 mt-5 border-top bg-white">
                         <small class="text-muted">
                                 Dike is an open-source route inflator for GPS tracks.<br>
-                                Source code and documentation available at: <a href="https://github.com/alperakcan/dike" target="_blank">https://github.com/alperakcan/dike</a>
+                                Source code and documentation available at:
+                                <a href="https://github.com/alperakcan/dike" target="_blank" class="text-decoration-none">
+                                        <i class="bi bi-github"></i> github.com/alperakcan/dike
+                                </a>
                         </small>
-                </div>
-                <br>
+                </footer>
         </body>
 </html>

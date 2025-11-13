@@ -4,12 +4,6 @@ CMAKE ?= cmake
 target.extra-y = \
 	install
 
-ifeq (${__WINDOWS__},y)
-
-SYSTEM_NAME := Windows
-
-endif
-
 include ${DIKE_LIBMAKEFILE_PATH}/Makefile.lib
 
 patch:
@@ -21,6 +15,7 @@ patch:
 	fi
 
 config: patch
+ifeq (${__WINDOWS__},y)
 	${Q}if [ ! -e .config ]; then \
 	  ( \
 	      mkdir -p ../clipper2/CPP/build && \
@@ -31,7 +26,7 @@ config: patch
 	      CC=${CROSS_COMPILE_PREFIX}gcc \
 	      CXX=${CROSS_COMPILE_PREFIX}g++ \
 	      ${CMAKE} \
-	        -DCMAKE_SYSTEM_NAME=${SYSTEM_NAME} \
+	        -DCMAKE_SYSTEM_NAME=Windows \
 	        -DCLIPPER2_EXAMPLES=OFF \
 	        -DCLIPPER2_TESTS=OFF \
 	        -DBUILD_SHARED_LIBS=OFF \
@@ -42,6 +37,26 @@ config: patch
 	  touch .config; \
 	  rm -f .build; \
 	fi
+else
+	${Q}if [ ! -e .config ]; then \
+	  ( \
+	      mkdir -p ../clipper2/CPP/build && \
+	      cd ../clipper2/CPP/build && \
+	      CFLAGS=-g \
+	      LDFLAGS= \
+	      MAKEFLAGS= \
+	      cmake \
+	        -DCLIPPER2_EXAMPLES=OFF \
+	        -DCLIPPER2_TESTS=OFF \
+	        -DBUILD_SHARED_LIBS=OFF \
+		-DCLIPPER2_HI_PRECISION=OFF \
+		-DCLIPPER2_UTILS=OFF \
+	        .. \
+	  ) && \
+	  touch .config; \
+	  rm -f .build; \
+	fi
+endif
 
 build: config
 	${Q}if [ ! -e .build ]; then \
