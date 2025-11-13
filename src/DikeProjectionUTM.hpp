@@ -15,6 +15,7 @@ public:
 
         // Utility functions
         static int getZoneFromLongitude (double lon);
+        static int getZoneFromLonLat (double lon, double lat);
         static bool isNorthernHemisphere (double lat);
         void setZone (int zone, bool isNorthern);
         int getZone (void) const;

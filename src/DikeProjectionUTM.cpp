@@ -1,5 +1,6 @@
 
 #include <cmath>
+#include "DikeDebug.hpp"
 #include "DikeProjectionUTM.hpp"
 
 DikeProjectionUTM::DikeProjectionUTM (void)
@@ -22,14 +23,46 @@ DikeProjectionUTM::~DikeProjectionUTM (void)
 
 int DikeProjectionUTM::getZoneFromLongitude (double lon)
 {
+        // Normalize lon to [-180, 180)
+        while (lon < -180.0) lon += 360.0;
+        while (lon >= 180.0) lon -= 360.0;
+
         // UTM zones are 6 degrees wide, numbered 1-60
         // Zone 1 starts at -180° (180°W)
-        int zone = static_cast<int>((lon + 180.0) / 6.0) + 1;
+        int zone = static_cast<int>(std::floor((lon + 180.0) / 6.0)) + 1;
 
         // Clamp to valid range [1, 60]
         if (zone < 1) zone = 1;
         if (zone > 60) zone = 60;
 
+        return zone;
+}
+
+int DikeProjectionUTM::getZoneFromLonLat (double lon, double lat)
+{
+        // Normalize lon to [-180, 180)
+        while (lon < -180.0) lon += 360.0;
+        while (lon >= 180.0) lon -= 360.0;
+
+        // Base zone by longitude
+        int zone = getZoneFromLongitude(lon);
+
+        // Norway exception: lat between 56N and 64N and lon between 3E and 12E -> use zone 32
+        if (lat >= 56.0 && lat < 64.0 && lon >= 3.0 && lon < 12.0) {
+                zone = 32;
+        }
+
+        // Svalbard exceptions: lat between 72N and 84N
+        if (lat >= 72.0 && lat < 84.0) {
+                if (lon >= 0.0 && lon < 9.0) zone = 31;
+                else if (lon >= 9.0 && lon < 21.0) zone = 33;
+                else if (lon >= 21.0 && lon < 33.0) zone = 35;
+                else if (lon >= 33.0 && lon < 42.0) zone = 37;
+        }
+
+        // Clamp to [1,60] (defensive)
+        if (zone < 1) zone = 1;
+        if (zone > 60) zone = 60;
         return zone;
 }
 
@@ -61,8 +94,11 @@ void DikeProjectionUTM::forward (double lon, double lat, double &x, double &y)
 
         // Auto-detect zone if needed
         if (_autoZone) {
+                // Use lon+lat aware rules (Norway/Svalbard exceptions)
+                _zone = getZoneFromLonLat(lon, lat);
                 _zone = getZoneFromLongitude(lon);
                 _isNorthern = isNorthernHemisphere(lat);
+                dikeDebugf("UTM auto-zone: %d%c for lon=%.6f lat=%.6f", _zone, _isNorthern ? 'N' : 'S', lon, lat);
         }
 
         // Calculate central meridian for this zone
@@ -159,12 +195,16 @@ void DikeProjectionUTM::inverse (double x, double y, double &lon, double &lat)
                                             - (5.0 + 3.0 * T1 + 10.0 * C1 - 4.0 * C1 * C1 - 9.0 * DIKE_E2 / (1.0 - DIKE_E2)) * D4 / 24.0
                                             + (61.0 + 90.0 * T1 + 298.0 * C1 + 45.0 * T1 * T1 - 252.0 * DIKE_E2 / (1.0 - DIKE_E2) - 3.0 * C1 * C1) * D6 / 720.0);
 
-        // Calculate longitude
-        double lon0 = (_zone - 1) * 6.0 - 180.0 + 3.0;
-        lon = lon0 + (D - (1.0 + 2.0 * T1 + C1) * D3 / 6.0
+        // Calculate longitude (lon0 must be in radians here)
+        double lon0_deg = (_zone - 1) * 6.0 - 180.0 + 3.0;
+        double lon0_rad = lon0_deg * (DIKE_PI / 180.0);
+        lon = lon0_rad + (D - (1.0 + 2.0 * T1 + C1) * D3 / 6.0
                       + (5.0 - 2.0 * C1 + 28.0 * T1 - 3.0 * C1 * C1 + 8.0 * DIKE_E2 / (1.0 - DIKE_E2) + 24.0 * T1 * T1) * D5 / 120.0) / cosPhi1;
 
         // Convert from radians to degrees
         lat = lat * 180.0 / DIKE_PI;
         lon = lon * 180.0 / DIKE_PI;
+        // Normalize longitude to [-180, 180)
+        while (lon < -180.0) lon += 360.0;
+        while (lon >= 180.0) lon -= 360.0;
 }
