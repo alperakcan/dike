@@ -191,7 +191,7 @@
 
                                                         timeThen = (new Date()).getTime();
                                                         timeElapsed = timeThen - timePrev;
-                                                        outputDike.innerHTML += "inflated in " + timeElapsed + "ms <
+                                                        outputDike.innerHTML += "inflated in " + timeElapsed + "ms <br>";
 
                                                         const mime = (format === 'kml') ? 'application/vnd.google-earth.kml+xml' : 'application/gpx+xml';
                                                         const blob = new Blob([inflatedCopy], { type: mime });
