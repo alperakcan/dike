@@ -96,7 +96,6 @@ void DikeProjectionUTM::forward (double lon, double lat, double &x, double &y)
         if (_autoZone) {
                 // Use lon+lat aware rules (Norway/Svalbard exceptions)
                 _zone = getZoneFromLonLat(lon, lat);
-                _zone = getZoneFromLongitude(lon);
                 _isNorthern = isNorthernHemisphere(lat);
                 dikeDebugf("UTM auto-zone: %d%c for lon=%.6f lat=%.6f", _zone, _isNorthern ? 'N' : 'S', lon, lat);
         }
