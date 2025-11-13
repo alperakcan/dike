@@ -5,6 +5,8 @@ Dike is the goddess of justice and the spirit of moral order and fair judgement 
 
 The Dike suite provides both native command-line applications for terminal use and WebAssembly-powered HTML interfaces for easy browser-based access, enabling flexible deployment across development and production environments.
 
+Live on: https://alperakcan.github.io/dike/
+
 ## calculator
 
 Dike is a route success calculator specifically designed for to analyze GPS tracking data and measure route compliance. This application provides an objective assessment of how closely recorded GPS tracks follow their intended planned routes, delivering success percentage calculations.
