@@ -189,6 +189,10 @@
                                                         dikeModule._free(inflateBuffer);
                                                         dikeModule._free(inflateResult);
 
+                                                        timeThen = (new Date()).getTime();
+                                                        timeElapsed = timeThen - timePrev;
+                                                        outputDike.innerHTML += "inflated in " + timeElapsed + "ms <
+
                                                         const mime = (format === 'kml') ? 'application/vnd.google-earth.kml+xml' : 'application/gpx+xml';
                                                         const blob = new Blob([inflatedCopy], { type: mime });
                                                         const url = URL.createObjectURL(blob);
