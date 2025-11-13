@@ -76,6 +76,7 @@ dist.share-y    = DikeWasm.js
 dist.share-y   += DikeWasm.wasm
 dist.share-y   += DikeWasmES6.js
 dist.share-y   += DikeWasmES6.wasm
+dist.share-y   += Dike.html
 dist.share-y   += DikeCalculate.html
 dist.share-y   += DikeInflate.html
 
