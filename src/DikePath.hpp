@@ -39,6 +39,8 @@ public:
         static DikePath * DikePathCreateFromFile (std::string &file);
         static DikePath * DikePathCreateFromBuffer (const char *buffer, int length);
 
+        static DikePath * DikePathCreateInflatedFromPath (DikePath *path, int coverageRadius);
+
 private:
         int32_t _refcount;
         DikePathPrivate *_private;

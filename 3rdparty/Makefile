@@ -1,5 +1,6 @@
 
 subdir-y = \
+	clipper2-build \
 	libexpat-build \
 	rapidjson-build \
 	zip-build

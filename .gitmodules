@@ -10,3 +10,6 @@
 [submodule "3rdparty/libexpat"]
 	path = 3rdparty/libexpat
 	url = https://github.com/libexpat/libexpat.git
+[submodule "3rdparty/clipper2"]
+	path = 3rdparty/clipper2
+	url = https://github.com/AngusJohnson/Clipper2.git

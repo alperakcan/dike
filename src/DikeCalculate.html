@@ -26,8 +26,8 @@
                                                 console.log("dikeModuleES6 loaded");
                                                 dikeModule = Module;
                                                 var timePrev = (new Date()).getTime();
-                                                dikeInstance = dikeModule._create();
-                                                dikeModule._reset(dikeInstance);
+                                                dikeInstance = dikeModule._calculateCreate();
+                                                dikeModule._calculateReset(dikeInstance);
                                                 var timeThen = (new Date()).getTime();
                                                 var timeElapsed = timeThen - timePrev;
                                                 outputDike.innerHTML += "initialized in " + timeElapsed + "ms <br>";
@@ -185,7 +185,7 @@
                         }
 
                         dikeCalculateButton.onclick = function (event) {
-                                dikeModule._reset(dikeInstance);
+                                dikeModule._calculateReset(dikeInstance);
 
                                 let load;
                                 var timePrev = (new Date()).getTime();
@@ -195,7 +195,7 @@
                                 let methodUTF8     = stringToUTF8Array(method);
                                 let methodRaw      = dikeModule._malloc(methodUTF8.length);;
                                 dikeModule.HEAPU8.set(methodUTF8, methodRaw);
-                                dikeModule._setMethod(dikeInstance, methodRaw, coverageRadius);
+                                dikeModule._calculateSetMethod(dikeInstance, methodRaw, coverageRadius);
                                 dikeModule._free(methodRaw);
 
                                 load = 0;
@@ -218,7 +218,7 @@
                                                 let uint8Array = new Uint8Array(event.target.result);
                                                 let raw = dikeModule._malloc(uint8Array.length);
                                                 dikeModule.HEAPU8.set(uint8Array, raw);
-                                                let rc = dikeModule._addTrack(dikeInstance, raw, uint8Array.length);
+                                                let rc = dikeModule._calculateAddTrack(dikeInstance, raw, uint8Array.length);
                                                 if (rc != 0) {
                                                         outputDike.innerHTML += `can not load: ${dikeTracks[i].name}, rc: ${rc}<br>`;
                                                 }
@@ -231,7 +231,7 @@
                                                         outputDike.innerHTML += "loaded in " + timeElapsed + "ms <br>";
 
                                                         timePrev = (new Date()).getTime();
-                                                        let calculateResult = dikeModule._calculate(dikeInstance);
+                                                        let calculateResult = dikeModule._calculateCalculate(dikeInstance);
                                                         let calculateMatchedPoints   = dikeModule.getValue(calculateResult + 0, 'i32');
                                                         let calculateTotalPoints     = dikeModule.getValue(calculateResult + 4, 'i32');
                                                         let calculateMatchedDistance = dikeModule.getValue(calculateResult + 8, 'double');
@@ -261,7 +261,7 @@
                                                 let uint8Array = new Uint8Array(event.target.result);
                                                 let raw = dikeModule._malloc(uint8Array.length);
                                                 dikeModule.HEAPU8.set(uint8Array, raw);
-                                                let rc = dikeModule._addRecord(dikeInstance, raw, uint8Array.length);
+                                                let rc = dikeModule._calculateAddRecord(dikeInstance, raw, uint8Array.length);
                                                 if (rc != 0) {
                                                         outputDike.innerHTML += `can not load: ${dikeRecords[i].name}, rc: ${rc}<br>`;
                                                 }
@@ -274,7 +274,7 @@
                                                         outputDike.innerHTML += "loaded in " + timeElapsed + "ms <br>";
 
                                                         timePrev = (new Date()).getTime();
-                                                        let calculateResult = dikeModule._calculate(dikeInstance);
+                                                        let calculateResult = dikeModule._calculateCalculate(dikeInstance);
                                                         let calculateMatchedPoints   = dikeModule.getValue(calculateResult + 0, 'i32');
                                                         let calculateTotalPoints     = dikeModule.getValue(calculateResult + 4, 'i32');
                                                         let calculateMatchedDistance = dikeModule.getValue(calculateResult + 8, 'double');

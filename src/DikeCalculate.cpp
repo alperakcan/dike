@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#define DIKE_DEBUG_NAME "dike"
+#define DIKE_DEBUG_NAME "DikeCalculate"
 #include "DikeDebug.hpp"
 #include "DikeMethod.hpp"
 #include "DikePath.hpp"

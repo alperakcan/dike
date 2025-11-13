@@ -94,9 +94,15 @@ The application uses advanced spatial algorithms to perform proximity-based matc
 
         root /var/www/html;
 
-        location /dike/ {
+        location /dike {
             alias /dike/src/;
-            index dikeWasmES6.html;
+            index DikeCalculate.html;
+            try_files $uri $uri/ =404;
+        }
+
+        location /dike/calculate {
+            alias /dike/src/;
+            index DikeCalculate.html;
             try_files $uri $uri/ =404;
         }
     }
