@@ -1,0 +1,1 @@
+../DikeWasmES6.js
