@@ -1,6 +1,14 @@
 
+CMAKE ?= cmake
+
 target.extra-y = \
 	install
+
+ifeq (${__WINDOWS__},y)
+
+SYSTEM_NAME := Windows
+
+endif
 
 include ${DIKE_LIBMAKEFILE_PATH}/Makefile.lib
 
@@ -20,7 +28,10 @@ config: patch
 	      CFLAGS=-g \
 	      LDFLAGS= \
 	      MAKEFLAGS= \
-	      cmake \
+	      CC=${CROSS_COMPILE_PREFIX}gcc \
+	      CXX=${CROSS_COMPILE_PREFIX}g++ \
+	      ${CMAKE} \
+	        -DCMAKE_SYSTEM_NAME=${SYSTEM_NAME} \
 	        -DCLIPPER2_EXAMPLES=OFF \
 	        -DCLIPPER2_TESTS=OFF \
 	        -DBUILD_SHARED_LIBS=OFF \
