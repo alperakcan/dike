@@ -941,7 +941,7 @@ DikePath * DikePath::DikePathCreateInflatedFromPath (DikePath *path, int coverag
                 bpath.clear();
         }
 
-        dikeDebugf("Using UTM Zone %d%c", projection.getZone(), projection.getIsNorthern() ? 'N' : 'S');
+        dikeDebugf("using UTM Zone %d%c", projection.getZone(), projection.getIsNorthern() ? 'N' : 'S');
 
         bpaths = Clipper2Lib::InflatePaths(bpaths, coverageRadius, Clipper2Lib::JoinType::Round, Clipper2Lib::EndType::Round);
         bpaths = Clipper2Lib::SimplifyPaths(bpaths, 0.025);

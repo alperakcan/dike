@@ -89,6 +89,12 @@ endif
 
 include ${DIKE_LIBMAKEFILE_PATH}/Makefile.lib
 
+EXPORTED_FUNCTIONS  = '[
+EXPORTED_FUNCTIONS += "_malloc", "_free",
+EXPORTED_FUNCTIONS += "_calculateCreate", "_calculateDestroy", "_calculateReset", "_calculateSetMethod", "_calculateAddTrack", "_calculateAddRecord", "_calculateCalculate",
+EXPORTED_FUNCTIONS += "_inflateCreate", "_inflateDestroy", "_inflateReset", "_inflateSetOptions", "_inflateAddTrack", "_inflateInflate"
+EXPORTED_FUNCTIONS += ]'
+
 DikeWasm.js: DikeWasm.cpp ${Dike_files-y} Makefile
 	em++ -o DikeWasm.js DikeWasm.cpp ${Dike_files-y} \
 	  -I ${DIKE_3RDPARTY_INSTALL_PATH}/usr/local/include \
@@ -101,9 +107,10 @@ DikeWasm.js: DikeWasm.cpp ${Dike_files-y} Makefile
 	  -s ASSERTIONS=0 \
 	  -s NO_EXIT_RUNTIME=1 \
 	  -s ALLOW_MEMORY_GROWTH=1 \
-	  -s EXPORTED_FUNCTIONS='["_malloc", "_free", "_calculateCreate", "_calculateDestroy", "_calculateReset", "_calculateSetMethod", "_calculateAddTrack", "_calculateAddRecord", "_calculateCalculate"]' \
+	  -s EXPORTED_FUNCTIONS=${EXPORTED_FUNCTIONS} \
 	  -s EXPORTED_RUNTIME_METHODS='["HEAPU8", "getValue", "cwrap"]' \
 	  --minify 0 \
+	  -lClipper2 \
 	  -lzip \
 	  -lexpat \
 	  -lm
@@ -120,9 +127,10 @@ DikeWasmES6.js: DikeWasm.cpp ${Dike_files-y} Makefile
 	  -s ASSERTIONS=0 \
 	  -s NO_EXIT_RUNTIME=1 \
 	  -s ALLOW_MEMORY_GROWTH=1 \
-	  -s EXPORTED_FUNCTIONS='["_malloc", "_free", "_calculateCreate", "_calculateDestroy", "_calculateReset", "_calculateSetMethod", "_calculateAddTrack", "_calculateAddRecord", "_calculateCalculate"]' \
+	  -s EXPORTED_FUNCTIONS=${EXPORTED_FUNCTIONS} \
 	  -s EXPORTED_RUNTIME_METHODS='["HEAPU8", "getValue", "cwrap"]' \
 	  --minify 0 \
+	  -lClipper2 \
 	  -lzip \
 	  -lexpat \
 	  -lm
