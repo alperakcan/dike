@@ -9,7 +9,7 @@ Live on: https://alperakcan.github.io/dike/
 
 ## calculator
 
-Dike is a route success calculator specifically designed for to analyze GPS tracking data and measure route compliance. This application provides an objective assessment of how closely recorded GPS tracks follow their intended planned routes, delivering success percentage calculations.
+Dike is a route success calculator to analyze GPS tracking data and measure route compliance. This application provides an objective assessment of how closely recorded GPS tracks follow their intended planned routes, delivering success percentage calculations.
 
 The application uses advanced spatial algorithms to perform proximity-based matching between planned routes (tracks) and actual GPS recordings (records). Results include detailed statistics on matched points, total distance coverage, and comprehensive performance metrics with millisecond-precision timing information.
 
