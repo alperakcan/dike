@@ -200,6 +200,35 @@ int main (int argc, char **argv)
                 goto bail;
         }
 
+        if (std::get<DikeCalculateMethod::CalculateFieldMatchedPath>(calc) != NULL) {
+                dikeInfof("  matched path points:");
+                for (i = 0; i < std::get<DikeCalculateMethod::CalculateFieldMatchedPath>(calc)->getPointsCount(); i++) {
+                        std::tuple<DikePath::Command, DikePoint> *point;
+                        point = std::get<DikeCalculateMethod::CalculateFieldMatchedPath>(calc)->getPoint(i);
+                        dikeInfof("    %d: command=%d lon=%.6f lat=%.6f ele=%.2f tim=%.2f",
+                                i,
+                                std::get<0>(*point),
+                                std::get<1>(*point).lon(),
+                                std::get<1>(*point).lat(),
+                                std::get<1>(*point).ele(),
+                                std::get<1>(*point).tim());
+                }
+        }
+        if (std::get<DikeCalculateMethod::CalculateFieldRejectedPath>(calc) != NULL) {
+                dikeInfof("  rejected path points:");
+                for (i = 0; i < std::get<DikeCalculateMethod::CalculateFieldRejectedPath>(calc)->getPointsCount(); i++) {
+                        std::tuple<DikePath::Command, DikePoint> *point;
+                        point = std::get<DikeCalculateMethod::CalculateFieldRejectedPath>(calc)->getPoint(i);
+                        dikeInfof("    %d: command=%d lon=%.6f lat=%.6f ele=%.2f tim=%.2f",
+                                i,
+                                std::get<0>(*point),
+                                std::get<1>(*point).lon(),
+                                std::get<1>(*point).lat(),
+                                std::get<1>(*point).ele(),
+                                std::get<1>(*point).tim());
+                }
+        }
+
         dikeInfof("  points  : %%%.3f (%d / %d)",
                 std::get<DikeCalculateMethod::CalculateFieldMatchedPoints>(calc) * 100.0 / std::get<DikeCalculateMethod::CalculateFieldTotalPoints>(calc),
                 std::get<DikeCalculateMethod::CalculateFieldMatchedPoints>(calc),
@@ -208,8 +237,6 @@ int main (int argc, char **argv)
                 std::get<DikeCalculateMethod::CalculateFieldMatchedDistance>(calc) * 100.0 / std::get<DikeCalculateMethod::CalculateFieldTotalDistance>(calc),
                 std::get<DikeCalculateMethod::CalculateFieldMatchedDistance>(calc),
                 std::get<DikeCalculateMethod::CalculateFieldTotalDistance>(calc));
-
-
 
 out:
         if (method != NULL) {

@@ -89,6 +89,9 @@ std::tuple<int, int, int, double, double, std::unique_ptr<DikePath>, std::unique
         dts = 0;
         mdts = 0;
 
+        trackAccepted = NULL;
+        trackRejected = NULL;
+
         trackAccepted = new DikePath();
         if (trackAccepted == NULL) {
                 dikeErrorf("can not create trackAccepted");

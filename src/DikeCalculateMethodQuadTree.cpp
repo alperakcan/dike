@@ -712,12 +712,31 @@ std::tuple<int, int, int, double, double, std::unique_ptr<DikePath>, std::unique
         double dts;
         double mdts;
 
+        DikePath *trackAccepted;
+        DikePath *trackRejected;
+
         pts = 0;
         mpts = 0;
         pmpts = 0;
 
         dts = 0;
         mdts = 0;
+
+        trackAccepted = NULL;
+        trackRejected = NULL;
+
+        qtree = NULL;
+
+        trackAccepted = new DikePath();
+        if (trackAccepted == NULL) {
+                dikeErrorf("can not create trackAccepted");
+                goto bail;
+        }
+        trackRejected = new DikePath();
+        if (trackRejected == NULL) {
+                dikeErrorf("can not create trackRejected");
+                goto bail;
+        }
 
         dikeDebugf("building qtree");
 
@@ -787,6 +806,16 @@ std::tuple<int, int, int, double, double, std::unique_ptr<DikePath>, std::unique
                                 } else if (j == 0) {
                                         mpts += 1;
                                 }
+
+                                if (ppoint != NULL) {
+                                        trackAccepted->addPoint(DikePath::CommandMoveTo, std::get<1>(*ppoint));
+                                        trackAccepted->addPoint(DikePath::CommandLineTo, std::get<1>(*tpoint));
+                                }
+                        } else {
+                                if (ppoint != NULL) {
+                                        trackRejected->addPoint(DikePath::CommandMoveTo, std::get<1>(*ppoint));
+                                        trackRejected->addPoint(DikePath::CommandLineTo, std::get<1>(*tpoint));
+                                }
                         }
                         pmpts = rc;
                 }
@@ -795,10 +824,16 @@ std::tuple<int, int, int, double, double, std::unique_ptr<DikePath>, std::unique
         dike_qtree_traverse(qtree, qtree_traverse_bucket_start, qtree_traverse_item, qtree_traverse_bucket_end, NULL);
 
         dike_qtree_destroy(qtree);
-        return std::tuple<int, int, int, double, double, std::unique_ptr<DikePath>, std::unique_ptr<DikePath>>(0, mpts, pts, mdts, dts, nullptr, nullptr);
+        return std::tuple<int, int, int, double, double, std::unique_ptr<DikePath>, std::unique_ptr<DikePath>>(0, mpts, pts, mdts, dts, trackAccepted, trackRejected);
 bail:
         if (qtree != NULL) {
                 dike_qtree_destroy(qtree);
+        }
+        if (trackAccepted != NULL) {
+                trackAccepted->decref();
+        }
+        if (trackRejected != NULL) {
+                trackRejected->decref();
         }
         return std::tuple<int, int, int, double, double, std::unique_ptr<DikePath>, std::unique_ptr<DikePath>>(-1, 0, 0, 0, 0, nullptr, nullptr);
 }
