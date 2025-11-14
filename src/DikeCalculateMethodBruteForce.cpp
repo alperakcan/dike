@@ -78,12 +78,26 @@ std::tuple<int, int, int, double, double>  DikeCalculateMethodBruteForcePrivate:
         double dts;
         double mdts;
 
+        DikePath *track;
+        DikePath *record;
+
         pts = 0;
         mpts = 0;
         pmpts = 0;
 
         dts = 0;
         mdts = 0;
+
+        track = new DikePath();
+        if (track == NULL) {
+                dikeErrorf("can not create track");
+                goto bail;
+        }
+        record = new DikePath();
+        if (record == NULL) {
+                dikeErrorf("can not create record");
+                goto bail;
+        }
 
         dikeDebugf("calculating tracks:");
         for (i = 0, il = _tracks.size(); i < il; i++) {
@@ -94,6 +108,10 @@ std::tuple<int, int, int, double, double>  DikeCalculateMethodBruteForcePrivate:
 
                         ppoint = (j == 0) ? NULL : _tracks[i]->getPoint(j - 1);
                         tpoint = _tracks[i]->getPoint(j);
+
+                        if (j == 0) {
+                                track->moveTo(std::get<1>(*tpoint));
+                        }
 
                         pts += 1;
                         dts += (ppoint == NULL) ? 0 : DikePoint::DikePointDistanceEuclidean(&std::get<1>(*ppoint), &std::get<1>(*tpoint));
@@ -129,6 +147,13 @@ std::tuple<int, int, int, double, double>  DikeCalculateMethodBruteForcePrivate:
         }
 
         return std::tuple<int, int, int, double, double>(0, mpts, pts, mdts, dts);
+bail:   if (track != NULL) {
+                track->decref();
+        }
+        if (record != NULL) {
+                record->decref();
+        }
+        return std::tuple<int, int, int, double, double>(-1, 0, 0, 0, 0);
 }
 
 DikeCalculateMethodBruteForce::DikeCalculateMethodBruteForce (const DikeCalculateMethodOptions &options)
