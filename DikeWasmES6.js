@@ -3870,7 +3870,7 @@ Module["getValue"] = getValue;
 // End JS library exports
 // end include: postlibrary.js
 // Imports from the Wasm binary.
-var _inflateDestroy, _inflateCreate, _inflateReset, _inflateSetOptions, _inflateAddTrack, _inflateInflate, _malloc, _free, _calculateDestroy, _calculateCreate, _calculateReset, _calculateSetMethod, _calculateAddTrack, _calculateAddRecord, _calculateCalculate, __emscripten_stack_restore, __emscripten_stack_alloc, _emscripten_stack_get_current, memory, __indirect_function_table, wasmMemory;
+var _inflateDestroy, _inflateCreate, _inflateReset, _inflateSetOptions, _inflateAddTrack, _inflateInflate, _malloc, _free, _calculateDestroy, _calculateCreate, _calculateReset, _calculateSetMethod, _calculateAddTrack, _calculateAddRecord, _calculateCalculate, _calculateResultFree, _pathGetPointsCount, _pathGetPoint, _pathGetPointCommand, _pathGetPointLat, _pathGetPointLon, __emscripten_stack_restore, __emscripten_stack_alloc, _emscripten_stack_get_current, memory, __indirect_function_table, wasmMemory;
 
 function assignWasmExports(wasmExports) {
   _inflateDestroy = Module["_inflateDestroy"] = wasmExports["t"];
@@ -3888,9 +3888,15 @@ function assignWasmExports(wasmExports) {
   _calculateAddTrack = Module["_calculateAddTrack"] = wasmExports["F"];
   _calculateAddRecord = Module["_calculateAddRecord"] = wasmExports["G"];
   _calculateCalculate = Module["_calculateCalculate"] = wasmExports["H"];
-  __emscripten_stack_restore = wasmExports["I"];
-  __emscripten_stack_alloc = wasmExports["J"];
-  _emscripten_stack_get_current = wasmExports["K"];
+  _calculateResultFree = Module["_calculateResultFree"] = wasmExports["I"];
+  _pathGetPointsCount = Module["_pathGetPointsCount"] = wasmExports["J"];
+  _pathGetPoint = Module["_pathGetPoint"] = wasmExports["K"];
+  _pathGetPointCommand = Module["_pathGetPointCommand"] = wasmExports["L"];
+  _pathGetPointLat = Module["_pathGetPointLat"] = wasmExports["M"];
+  _pathGetPointLon = Module["_pathGetPointLon"] = wasmExports["N"];
+  __emscripten_stack_restore = wasmExports["O"];
+  __emscripten_stack_alloc = wasmExports["P"];
+  _emscripten_stack_get_current = wasmExports["Q"];
   memory = wasmMemory = wasmExports["r"];
   __indirect_function_table = wasmExports["__indirect_function_table"];
 }

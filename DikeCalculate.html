@@ -50,7 +50,8 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                                 dikeModule._calculateReset(dikeInstance);
                                                 var timeThen = (new Date()).getTime();
                                                 var timeElapsed = timeThen - timePrev;
-                                                outputDike.innerHTML += "initialized in " + timeElapsed + "ms <br>";
+                                                outputDike.innerHTML = "initialized in " + timeElapsed + "ms <br>";
+                                                outputDike.innerHTML += "Waiting for calculation...<br>";
                                         });
                                 })();
                         }
@@ -106,6 +107,228 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                 return str;
                         }
 
+                        function renderCalculationView(acceptedPathPtr, rejectedPathPtr) {
+                                const container = document.getElementById("outputView");
+                                const width = container.clientWidth || 800;
+                                const height = 420;
+                                const margin = 20;
+
+                                function collectSubpaths(pathPtr) {
+                                        if (!pathPtr) return [];
+                                        const n = dikeModule._pathGetPointsCount(pathPtr);
+                                        if (n <= 0) return [];
+                                        let subpaths = [];
+                                        let current = [];
+                                        for (let i = 0; i < n; i++) {
+                                                const pt = dikeModule._pathGetPoint(pathPtr, i);
+                                                if (pt === 0) continue;
+                                                const cmd = dikeModule._pathGetPointCommand(pt);
+                                                const lat = dikeModule._pathGetPointLat(pt);
+                                                const lon = dikeModule._pathGetPointLon(pt);
+                                                if (cmd === 1 /* MoveTo */) {
+                                                        if (current.length > 0) subpaths.push(current);
+                                                        current = [];
+                                                }
+                                                current.push([lon, lat]);
+                                        }
+                                        if (current.length > 0) subpaths.push(current);
+                                        return subpaths;
+                                }
+
+                                const accSubs = collectSubpaths(acceptedPathPtr);
+                                const rejSubs = collectSubpaths(rejectedPathPtr);
+
+                                let minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
+                                const allSubs = accSubs.concat(rejSubs);
+                                for (const sub of allSubs) {
+                                        for (const [lon, lat] of sub) {
+                                                if (lon < minLon) minLon = lon;
+                                                if (lon > maxLon) maxLon = lon;
+                                                if (lat < minLat) minLat = lat;
+                                                if (lat > maxLat) maxLat = lat;
+                                        }
+                                }
+
+                                if (!isFinite(minLon) || !isFinite(maxLon) || !isFinite(minLat) || !isFinite(maxLat)) {
+                                        container.innerHTML = '<div class="text-muted">No geometry to display.</div>';
+                                        return;
+                                }
+
+                                const lonSpan = (maxLon - minLon) || 1e-6;
+                                const latSpan = (maxLat - minLat) || 1e-6;
+
+                                let viewBox = {
+                                        x: 0,
+                                        y: 0,
+                                        width: width,
+                                        height: height
+                                };
+                                let isPanning = false;
+                                let startPoint = { x: 0, y: 0 };
+
+                                function project(lon, lat) {
+                                        const x = margin + (lon - minLon) * (width - 2 * margin) / lonSpan;
+                                        const y = height - margin - (lat - minLat) * (height - 2 * margin) / latSpan;
+                                        return [x, y];
+                                }
+
+                                function pathData(sub) {
+                                        if (sub.length === 0) return "";
+                                        const [x0, y0] = project(sub[0][0], sub[0][1]);
+                                        let d = `M ${x0.toFixed(2)},${y0.toFixed(2)}`;
+                                        for (let i = 1; i < sub.length; i++) {
+                                                const [x, y] = project(sub[i][0], sub[i][1]);
+                                                d += ` L ${x.toFixed(2)},${y.toFixed(2)}`;
+                                        }
+                                        return d;
+                                }
+
+                                function render() {
+                                        let svgParts = [];
+                                        svgParts.push(`<svg id="calcSvg" xmlns="http://www.w3.org/2000/svg" width="100%" height="${height}" viewBox="${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}" style="cursor: grab;">`);
+                                        svgParts.push(`<rect x="0" y="0" width="${width}" height="${height}" fill="#ffffff"/>`);
+
+                                        for (const sub of rejSubs) {
+                                                const d = pathData(sub);
+                                                if (d) svgParts.push(`<path d="${d}" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />`);
+                                        }
+                                        for (const sub of accSubs) {
+                                                const d = pathData(sub);
+                                                if (d) svgParts.push(`<path d="${d}" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />`);
+                                        }
+
+                                        svgParts.push(`</svg>`);
+
+                                        svgParts.push(`
+                                                <div style="position: absolute; top: 10px; left: 10px; pointer-events: none; z-index: 10;">
+                                                        <div style="background: rgba(248,249,250,0.95); border: 1px solid #dee2e6; border-radius: 6px; padding: 8px 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; font-size: 12px;">
+                                                                <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                                                                        <div style="width: 30px; height: 3px; background: #0d6efd; margin-right: 8px;"></div>
+                                                                        <span style="color: #212529;">Accepted</span>
+                                                                </div>
+                                                                <div style="display: flex; align-items: center;">
+                                                                        <div style="width: 30px; height: 3px; background: #dc3545; margin-right: 8px;"></div>
+                                                                        <span style="color: #212529;">Rejected</span>
+                                                                </div>
+                                                        </div>
+                                                </div>
+                                                <div style="position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 5px; z-index: 10;">
+                                                        <button id="zoomIn" class="btn btn-sm btn-light shadow-sm" style="width: 36px; height: 36px;" title="Zoom In">
+                                                                <i class="bi bi-zoom-in"></i>
+                                                        </button>
+                                                        <button id="zoomOut" class="btn btn-sm btn-light shadow-sm" style="width: 36px; height: 36px;" title="Zoom Out">
+                                                                <i class="bi bi-zoom-out"></i>
+                                                        </button>
+                                                        <button id="zoomReset" class="btn btn-sm btn-light shadow-sm" style="width: 36px; height: 36px;" title="Reset View">
+                                                                <i class="bi bi-arrow-clockwise"></i>
+                                                        </button>
+                                                </div>
+                                        `);
+
+                                        container.innerHTML = svgParts.join("");
+                                        const svg = document.getElementById('calcSvg');
+
+                                        svg.addEventListener('mousedown', (e) => {
+                                                isPanning = true;
+                                                svg.style.cursor = 'grabbing';
+                                                startPoint = { x: e.clientX, y: e.clientY };
+                                        });
+
+                                        svg.addEventListener('mousemove', (e) => {
+                                                if (!isPanning) return;
+                                                const dx = (e.clientX - startPoint.x) * (viewBox.width / width);
+                                                const dy = (e.clientY - startPoint.y) * (viewBox.height / height);
+
+                                                let newX = viewBox.x - dx;
+                                                let newY = viewBox.y - dy;
+
+                                                newX = Math.max(0, Math.min(newX, width - viewBox.width));
+                                                newY = Math.max(0, Math.min(newY, height - viewBox.height));
+
+                                                viewBox.x = newX;
+                                                viewBox.y = newY;
+                                                startPoint = { x: e.clientX, y: e.clientY };
+                                                render();
+                                        });
+
+                                        svg.addEventListener('mouseup', () => {
+                                                isPanning = false;
+                                                svg.style.cursor = 'grab';
+                                        });
+
+                                        svg.addEventListener('mouseleave', () => {
+                                                isPanning = false;
+                                                svg.style.cursor = 'grab';
+                                        });
+
+                                        svg.addEventListener('wheel', (e) => {
+                                                e.preventDefault();
+                                                const scale = e.deltaY < 0 ? 0.9 : 1.1;
+
+                                                if (scale > 1 && (viewBox.width >= width || viewBox.height >= height)) {
+                                                        return;
+                                                }
+
+                                                const rect = svg.getBoundingClientRect();
+                                                const mouseX = e.clientX - rect.left;
+                                                const mouseY = e.clientY - rect.top;
+                                                const worldX = viewBox.x + (mouseX / rect.width) * viewBox.width;
+                                                const worldY = viewBox.y + (mouseY / rect.height) * viewBox.height;
+
+                                                viewBox.width *= scale;
+                                                viewBox.height *= scale;
+                                                viewBox.x = worldX - (mouseX / rect.width) * viewBox.width;
+                                                viewBox.y = worldY - (mouseY / rect.height) * viewBox.height;
+
+                                                viewBox.x = Math.max(0, Math.min(viewBox.x, width - viewBox.width));
+                                                viewBox.y = Math.max(0, Math.min(viewBox.y, height - viewBox.height));
+
+                                                render();
+                                        });
+
+                                        document.getElementById('zoomIn').addEventListener('click', () => {
+                                                const scale = 0.8;
+                                                const centerX = viewBox.x + viewBox.width / 2;
+                                                const centerY = viewBox.y + viewBox.height / 2;
+                                                viewBox.width *= scale;
+                                                viewBox.height *= scale;
+                                                viewBox.x = centerX - viewBox.width / 2;
+                                                viewBox.y = centerY - viewBox.height / 2;
+
+                                                viewBox.x = Math.max(0, Math.min(viewBox.x, width - viewBox.width));
+                                                viewBox.y = Math.max(0, Math.min(viewBox.y, height - viewBox.height));
+
+                                                render();
+                                        });
+
+                                        document.getElementById('zoomOut').addEventListener('click', () => {
+                                                if (viewBox.width >= width || viewBox.height >= height) {
+                                                        return;
+                                                }
+
+                                                const scale = 1.25;
+                                                const centerX = viewBox.x + viewBox.width / 2;
+                                                const centerY = viewBox.y + viewBox.height / 2;
+                                                viewBox.width *= scale;
+                                                viewBox.height *= scale;
+                                                viewBox.x = centerX - viewBox.width / 2;
+                                                viewBox.y = centerY - viewBox.height / 2;
+
+                                                viewBox.x = Math.max(0, Math.min(viewBox.x, width - viewBox.width));
+                                                viewBox.y = Math.max(0, Math.min(viewBox.y, height - viewBox.height));
+
+                                                render();
+                                        });
+
+                                        document.getElementById('zoomReset').addEventListener('click', () => {
+                                                viewBox = { x: 0, y: 0, width: width, height: height };
+                                                render();
+                                        });
+                                }
+
+                                render();
+                        }
+
                         let inputDikeTrackDel = function (idx) {
                                 dikeTracks.splice(idx, 1);
 
@@ -125,6 +348,8 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                 inputDikeTracksList.innerHTML = innerHTML;
 
                                 dikeResult.innerHTML = "Add base tracks and route records, then kick 'Calculate'.";
+                                outputView.innerHTML = "Waiting for calculation...<br>";
+                                outputDike.innerHTML = "Waiting for calculation...<br>";
                         }
 
                         inputDikeTrackAdd.onclick = function (event) {
@@ -153,6 +378,8 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                 inputDikeTracksList.innerHTML = innerHTML;
 
                                 dikeResult.innerHTML = "Add base tracks and route records, then kick 'Calculate'.";
+                                outputView.innerHTML = "Waiting for calculation...<br>";
+                                outputDike.innerHTML = "Waiting for calculation...<br>";
                         }
 
                         let inputDikeRecordDel = function (idx) {
@@ -174,6 +401,8 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                 inputDikeRecordsList.innerHTML = innerHTML;
 
                                 dikeResult.innerHTML = "Add base tracks and route records, then kick 'Calculate'.";
+                                outputView.innerHTML = "Waiting for calculation...<br>";
+                                outputDike.innerHTML = "Waiting for calculation...<br>";
                         }
 
                         inputDikeRecordAdd.onclick = function (event) {
@@ -202,6 +431,8 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                 inputDikeRecordsList.innerHTML = innerHTML;
 
                                 dikeResult.innerHTML = "Add base tracks and route records, then kick 'Calculate'.";
+                                outputView.innerHTML = "Waiting for calculation...<br>";
+                                outputDike.innerHTML = "Waiting for calculation...<br>";
                         }
 
                         dikeCalculateButton.onclick = function (event) {
@@ -210,8 +441,8 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                 let load;
                                 var timePrev = (new Date()).getTime();
 
-                                let method         = document.getElementById("dikeMethod").value;
-                                let coverageRadius = parseInt(document.getElementById("dikeMethodCoverageRadius").value);
+                                let method         = document.getElementById("DikeCalculateMethod").value;
+                                let coverageRadius = parseInt(document.getElementById("DikeCalculateMethodCoverageRadius").value);
                                 let methodUTF8     = stringToUTF8Array(method);
                                 let methodRaw      = dikeModule._malloc(methodUTF8.length);;
                                 dikeModule.HEAPU8.set(methodUTF8, methodRaw);
@@ -256,6 +487,8 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                                         let calculateTotalPoints     = dikeModule.getValue(calculateResult + 4, 'i32');
                                                         let calculateMatchedDistance = dikeModule.getValue(calculateResult + 8, 'double');
                                                         let calculateTotalDistance   = dikeModule.getValue(calculateResult + 16, 'double');
+                                                        let calculateAcceptedPath    = dikeModule.getValue(calculateResult + 24, '*');
+                                                        let calculateRejectedPath    = dikeModule.getValue(calculateResult + 28, '*');
                                                         timeThen = (new Date()).getTime();
                                                         timeElapsed = timeThen - timePrev;
                                                         outputDike.innerHTML += "calculated in " + timeElapsed + "ms <br>";
@@ -267,7 +500,9 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
 
                                                         dikeResult.innerHTML = `% ${(calculateMatchedDistance * 100 / calculateTotalDistance).toFixed(3)} (${calculateMatchedDistance.toFixed(3)} / ${calculateTotalDistance.toFixed(3)})<br>`;
 
-                                                        dikeModule._free(calculateResult);
+                                                        renderCalculationView(calculateAcceptedPath, calculateRejectedPath);
+
+                                                        dikeModule._calculateResultFree(calculateResult);
                                                 }
                                         }
                                         outputDike.innerHTML += `loading: ${dikeTracks[i].name}<br>`;
@@ -299,6 +534,8 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                                         let calculateTotalPoints     = dikeModule.getValue(calculateResult + 4, 'i32');
                                                         let calculateMatchedDistance = dikeModule.getValue(calculateResult + 8, 'double');
                                                         let calculateTotalDistance   = dikeModule.getValue(calculateResult + 16, 'double');
+                                                        let calculateAcceptedPath    = dikeModule.getValue(calculateResult + 24, '*');
+                                                        let calculateRejectedPath    = dikeModule.getValue(calculateResult + 28, '*');
                                                         timeThen = (new Date()).getTime();
                                                         timeElapsed = timeThen - timePrev;
                                                         outputDike.innerHTML += "calculated in " + timeElapsed + "ms <br>";
@@ -310,7 +547,11 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
 
                                                         dikeResult.innerHTML = `% ${(calculateMatchedDistance * 100 / calculateTotalDistance).toFixed(3)} (${calculateMatchedDistance.toFixed(3)} / ${calculateTotalDistance.toFixed(3)})<br>`;
 
-                                                        dikeModule._free(calculateResult);
+                                                        console.log("Accepted Path Pointer: ", calculateAcceptedPath);
+                                                        console.log("Rejected Path Pointer: ", calculateRejectedPath);
+
+                                                        renderCalculationView(calculateAcceptedPath, calculateRejectedPath);
+                                                        dikeModule._calculateResultFree(calculateResult);
                                                 }
                                         }
                                         outputDike.innerHTML += `loading: ${dikeRecords[i].name}<br>`;
@@ -319,6 +560,9 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                         }
 
                         dikeResult.innerHTML = "Add base tracks and route records, then kick 'Calculate'.";
+                        outputView.innerHTML = "Waiting for calculation...<br>";
+                        outputDike.innerHTML = "Waiting for calculation...<br>";
+
                         inputDikeTracksList.innerHTML = "(empty)";
                         inputDikeRecordsList.innerHTML = "(empty)";
 
@@ -379,16 +623,16 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                                         </h5>
                                                         <div class="row g-3 mb-3">
                                                                 <div class="col-md-6">
-                                                                        <label for="dikeMethod" class="form-label fw-bold">Calculation Method</label>
-                                                                        <select id="dikeMethod" class="form-select">
+                                                                        <label for="DikeCalculateMethod" class="form-label fw-bold">Calculation Method</label>
+                                                                        <select id="DikeCalculateMethod" class="form-select">
                                                                                 <option value="quadtree" selected>QuadTree (Recommended)</option>
                                                                                 <option value="bruteforce" disabled>Brute Force (Too Slow)</option>
                                                                         </select>
                                                                         <small class="text-muted">QuadTree provides efficient spatial indexing for fast calculations</small>
                                                                 </div>
                                                                 <div class="col-md-6">
-                                                                        <label for="dikeMethodCoverageRadius" class="form-label fw-bold">Coverage Radius (meters)</label>
-                                                                        <input id="dikeMethodCoverageRadius" type="number" class="form-control" placeholder="Coverage Radius" value="250" min="1" />
+                                                                        <label for="DikeCalculateMethodCoverageRadius" class="form-label fw-bold">Coverage Radius (meters)</label>
+                                                                        <input id="DikeCalculateMethodCoverageRadius" type="number" class="form-control" placeholder="Coverage Radius" value="250" min="1" />
                                                                         <small class="text-muted">Maximum distance to consider a point as matched</small>
                                                                 </div>
                                                         </div>
@@ -403,6 +647,18 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
 
                 <div class="container py-3">
                         <div class="row justify-content-center">
+                                <div class="col-lg-10">
+                                        <div class="card shadow-sm">
+                                                <div class="card-header bg-light">
+                                                        <h5 class="mb-0"><i class="bi bi-terminal"></i> Calculation View</h5>
+                                                </div>
+                                                <div id="outputView" class="card-body font-monospace" style="position: relative; min-height: 100px; font-size: 0.9rem;">
+                                                </div>
+                                        </div>
+                                </div>
+                        </div>
+
+                        <div class="row justify-content-center mt-3">
                                 <div class="col-lg-10">
                                         <div class="card shadow-sm">
                                                 <div class="card-header bg-light">
