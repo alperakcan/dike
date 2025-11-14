@@ -41,7 +41,7 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
 
                         function init () {
                                 (async () => {
-                                        const WASM_VERSION = '20251114';
+                                        const WASM_VERSION = '20251114.0';
                                         await DikeWasm({
                                                 locateFile: (path) => path.endsWith('.wasm') ? `${path}?v=${WASM_VERSION}` : path
                                         }).then(function(Module) {

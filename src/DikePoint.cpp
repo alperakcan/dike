@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "DikeDebug.hpp"
 #include "DikePoint.hpp"
 
 DikePoint::DikePoint (void)
@@ -86,7 +87,7 @@ double DikePoint::DikePointDistanceEuclidean (const DikePoint *a, const DikePoin
         double _c = 2 * atan2(sqrt(_a), sqrt(1 - _a));
         double dist = earthRadius * _c;
         if (a->ele() != INFINITY && b->ele() != INFINITY) {
-                dist = sqrt(pow(a->ele() - b->ele(), 2) + pow(dist, 2));
+                //dist = sqrt(pow(a->ele() - b->ele(), 2) + pow(dist, 2));
         }
         return dist;
 }
