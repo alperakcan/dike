@@ -45,6 +45,8 @@ struct DikeCalculateResult {
         int32_t total_points;
         double matched_distance;
         double total_distance;
+        DikePath *accepted_path;
+        DikePath *rejected_path;
 };
 
 struct DikeCalculate {
@@ -471,7 +473,7 @@ bail:   if (path != NULL) {
 extern "C" struct DikeCalculateResult * calculateCalculate (struct DikeCalculate *dikeCalculate)
 {
         struct DikeCalculateResult *calculateResult;
-        std::tuple<int, int, int, double, double> calc;
+        std::tuple<int, int, int, double, double, std::unique_ptr<DikePath>, std::unique_ptr<DikePath>> calc;
 
         if (dikeCalculate == NULL) {
                 dikeErrorf("dikeCalculate is invalid");
@@ -499,11 +501,72 @@ extern "C" struct DikeCalculateResult * calculateCalculate (struct DikeCalculate
 
 
         calculateResult = (struct DikeCalculateResult *) malloc(sizeof(struct DikeCalculateResult));
-        calculateResult->matched_points   = std::get<DikeCalculateMethod::CalculateFieldMatchedPoints>(calc);
-        calculateResult->total_points     = std::get<DikeCalculateMethod::CalculateFieldTotalPoints>(calc);
-        calculateResult->matched_distance = std::get<DikeCalculateMethod::CalculateFieldMatchedDistance>(calc);
-        calculateResult->total_distance   = std::get<DikeCalculateMethod::CalculateFieldTotalDistance>(calc);
+        calculateResult->matched_points         = std::get<DikeCalculateMethod::CalculateFieldMatchedPoints>(calc);
+        calculateResult->total_points           = std::get<DikeCalculateMethod::CalculateFieldTotalPoints>(calc);
+        calculateResult->matched_distance       = std::get<DikeCalculateMethod::CalculateFieldMatchedDistance>(calc);
+        calculateResult->total_distance         = std::get<DikeCalculateMethod::CalculateFieldTotalDistance>(calc);
+        calculateResult->accepted_path          = std::get<DikeCalculateMethod::CalculateFieldAcceptedPath>(calc).release();
+        calculateResult->rejected_path          = std::get<DikeCalculateMethod::CalculateFieldRejectedPath>(calc).release();
 
         return calculateResult;
 bail:   return NULL;
+}
+
+extern "C" void calculateResultFree (struct DikeCalculateResult *calculateResult)
+{
+        if (calculateResult == NULL) {
+                return;
+        }
+        if (calculateResult->accepted_path != NULL) {
+                calculateResult->accepted_path->decref();
+        }
+        if (calculateResult->rejected_path != NULL) {
+                calculateResult->rejected_path->decref();
+        }
+        free(calculateResult);
+}
+
+extern "C" int pathGetPointsCount (DikePath *path)
+{
+        if (path == NULL) {
+                dikeErrorf("path is invalid");
+                return -1;
+        }
+        return path->getPointsCount();
+}
+
+extern "C" std::tuple<DikePath::Command, DikePoint> * pathGetPoint (DikePath *path, int index)
+{
+        if (path == NULL) {
+                dikeErrorf("path is invalid");
+                return NULL;
+        }
+        return path->getPoint(index);
+}
+
+extern "C" int pathGetPointCommand (std::tuple<DikePath::Command, DikePoint> *point)
+{
+        if (point == NULL) {
+                dikeErrorf("point is invalid");
+                return -1;
+        }
+        return (int) std::get<0>(*point);
+}
+
+extern "C" double pathGetPointLat (std::tuple<DikePath::Command, DikePoint> *point)
+{
+        if (point == NULL) {
+                dikeErrorf("point is invalid");
+                return 0.0;
+        }
+        return std::get<1>(*point).lat();
+}
+
+extern "C" double pathGetPointLon (std::tuple<DikePath::Command, DikePoint> *point)
+{
+        if (point == NULL) {
+                dikeErrorf("point is invalid");
+                return 0.0;
+        }
+        return std::get<1>(*point).lon();
 }

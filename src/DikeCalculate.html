@@ -299,6 +299,8 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                                         let calculateTotalPoints     = dikeModule.getValue(calculateResult + 4, 'i32');
                                                         let calculateMatchedDistance = dikeModule.getValue(calculateResult + 8, 'double');
                                                         let calculateTotalDistance   = dikeModule.getValue(calculateResult + 16, 'double');
+                                                        let calculateAcceptedPath    = dikeModule.getValue(calculateResult + 24, '*');
+                                                        let calculateRejectedPath    = dikeModule.getValue(calculateResult + 28, '*');
                                                         timeThen = (new Date()).getTime();
                                                         timeElapsed = timeThen - timePrev;
                                                         outputDike.innerHTML += "calculated in " + timeElapsed + "ms <br>";
@@ -310,7 +312,33 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
 
                                                         dikeResult.innerHTML = `% ${(calculateMatchedDistance * 100 / calculateTotalDistance).toFixed(3)} (${calculateMatchedDistance.toFixed(3)} / ${calculateTotalDistance.toFixed(3)})<br>`;
 
-                                                        dikeModule._free(calculateResult);
+                                                        console.log("Accepted Path Pointer: ", calculateAcceptedPath);
+                                                        console.log("Rejected Path Pointer: ", calculateRejectedPath);
+
+                                                        console.log("Accepted Path Points:");
+                                                        let acceptedPointsCount = dikeModule._pathGetPointsCount(calculateAcceptedPath);
+                                                        for (let p = 0; p < acceptedPointsCount; p++) {
+                                                                let pointPtr = dikeModule._pathGetPoint(calculateAcceptedPath, p);
+                                                                if (pointPtr !== 0) {
+                                                                        let cmd = dikeModule._pathGetPointCommand(pointPtr);
+                                                                        let lat = dikeModule._pathGetPointLat(pointPtr);
+                                                                        let lon = dikeModule._pathGetPointLon(pointPtr);
+                                                                        console.log(`Command: ${cmd}, Lat: ${lat}, Lon: ${lon}`);
+                                                                }
+                                                        }
+
+                                                        console.log("Rejected Path Points:");
+                                                        let rejectedPointsCount = dikeModule._pathGetPointsCount(calculateRejectedPath);
+                                                        for (let p = 0; p < rejectedPointsCount; p++) {
+                                                                let pointPtr = dikeModule._pathGetPoint(calculateRejectedPath, p);
+                                                                if (pointPtr !== 0) {
+                                                                        let cmd = dikeModule._pathGetPointCommand(pointPtr);
+                                                                        let lat = dikeModule._pathGetPointLat(pointPtr);
+                                                                        let lon = dikeModule._pathGetPointLon(pointPtr);
+                                                                        console.log(`Command: ${cmd}, Lat: ${lat}, Lon: ${lon}`);
+                                                                }
+                                                        }
+                                                        dikeModule._calculateResultFree(calculateResult);
                                                 }
                                         }
                                         outputDike.innerHTML += `loading: ${dikeRecords[i].name}<br>`;

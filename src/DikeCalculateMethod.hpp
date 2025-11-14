@@ -29,7 +29,7 @@ public:
                 CalculateFieldTotalPoints       = 2,
                 CalculateFieldMatchedDistance   = 3,
                 CalculateFieldTotalDistance     = 4,
-                CalculateFieldMatchedPath       = 5,
+                CalculateFieldAcceptedPath      = 5,
                 CalculateFieldRejectedPath      = 6
         } CalculateField;
 

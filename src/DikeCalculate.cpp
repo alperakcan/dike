@@ -200,11 +200,11 @@ int main (int argc, char **argv)
                 goto bail;
         }
 
-        if (std::get<DikeCalculateMethod::CalculateFieldMatchedPath>(calc) != NULL) {
+        if (std::get<DikeCalculateMethod::CalculateFieldAcceptedPath>(calc) != NULL) {
                 dikeInfof("  matched path points:");
-                for (i = 0; i < std::get<DikeCalculateMethod::CalculateFieldMatchedPath>(calc)->getPointsCount(); i++) {
+                for (i = 0; i < std::get<DikeCalculateMethod::CalculateFieldAcceptedPath>(calc)->getPointsCount(); i++) {
                         std::tuple<DikePath::Command, DikePoint> *point;
-                        point = std::get<DikeCalculateMethod::CalculateFieldMatchedPath>(calc)->getPoint(i);
+                        point = std::get<DikeCalculateMethod::CalculateFieldAcceptedPath>(calc)->getPoint(i);
                         dikeInfof("    %d: command=%d lon=%.6f lat=%.6f ele=%.2f tim=%.2f",
                                 i,
                                 std::get<0>(*point),

@@ -92,8 +92,9 @@ include ${DIKE_LIBMAKEFILE_PATH}/Makefile.lib
 
 EXPORTED_FUNCTIONS  = '[
 EXPORTED_FUNCTIONS += "_malloc", "_free",
-EXPORTED_FUNCTIONS += "_calculateCreate", "_calculateDestroy", "_calculateReset", "_calculateSetMethod", "_calculateAddTrack", "_calculateAddRecord", "_calculateCalculate",
-EXPORTED_FUNCTIONS += "_inflateCreate", "_inflateDestroy", "_inflateReset", "_inflateSetOptions", "_inflateAddTrack", "_inflateInflate"
+EXPORTED_FUNCTIONS += "_calculateCreate", "_calculateDestroy", "_calculateReset", "_calculateSetMethod", "_calculateAddTrack", "_calculateAddRecord", "_calculateCalculate", "_calculateResultFree",
+EXPORTED_FUNCTIONS += "_inflateCreate", "_inflateDestroy", "_inflateReset", "_inflateSetOptions", "_inflateAddTrack", "_inflateInflate",
+EXPORTED_FUNCTIONS += "_pathGetPointsCount", "_pathGetPoint", "_pathGetPointCommand", "_pathGetPointLat", "_pathGetPointLon"
 EXPORTED_FUNCTIONS += ]'
 
 DikeWasm.js: DikeWasm.cpp ${Dike_files-y} Makefile
