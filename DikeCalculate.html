@@ -43,17 +43,17 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                         function init () {
                                 (async () => {
                                         const WASM_VERSION = '20251114.0';
+                                        outputDike.innerHTML = "Initializing...<br>";
                                         await DikeWasm({
                                                 locateFile: (path) => path.endsWith('.wasm') ? `${path}?v=${WASM_VERSION}` : path
                                         }).then(function(Module) {
-                                                console.log("dikeModuleES6 loaded");
                                                 dikeModule = Module;
                                                 var timePrev = (new Date()).getTime();
                                                 dikeInstance = dikeModule._calculateCreate();
                                                 dikeModule._calculateReset(dikeInstance);
                                                 var timeThen = (new Date()).getTime();
                                                 var timeElapsed = timeThen - timePrev;
-                                                outputDike.innerHTML = "initialized in " + timeElapsed + "ms <br>";
+                                                outputDike.innerHTML = "Initialized in " + timeElapsed + " ms <br>";
                                                 outputDike.innerHTML += "Waiting for calculation...<br>";
                                         });
                                 })();
@@ -116,7 +116,7 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                 const height = 420;
                                 const margin = 20;
 
-                                function collectSubpaths(pathPtr) {
+                                function collectSubpaths (pathPtr) {
                                         if (!pathPtr) return [];
                                         const n = dikeModule._pathGetPointsCount(pathPtr);
                                         if (n <= 0) return [];
@@ -351,7 +351,7 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                 inputDikeTracksList.innerHTML = innerHTML;
 
                                 dikeResult.innerHTML = "Add base tracks and route records, then kick 'Calculate'.";
-                                outputView.innerHTML = "Waiting for calculation...<br>";
+                                outputView.innerHTML = "No geometry to display.<br>";
                                 outputDike.innerHTML = "Waiting for calculation...<br>";
                         }
 
@@ -381,7 +381,7 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                 inputDikeTracksList.innerHTML = innerHTML;
 
                                 dikeResult.innerHTML = "Add base tracks and route records, then kick 'Calculate'.";
-                                outputView.innerHTML = "Waiting for calculation...<br>";
+                                outputView.innerHTML = "No geometry to display.<br>";
                                 outputDike.innerHTML = "Waiting for calculation...<br>";
                         }
 
@@ -404,7 +404,7 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                 inputDikeRecordsList.innerHTML = innerHTML;
 
                                 dikeResult.innerHTML = "Add base tracks and route records, then kick 'Calculate'.";
-                                outputView.innerHTML = "Waiting for calculation...<br>";
+                                outputView.innerHTML = "No geometry to display.<br>";
                                 outputDike.innerHTML = "Waiting for calculation...<br>";
                         }
 
@@ -434,7 +434,7 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                 inputDikeRecordsList.innerHTML = innerHTML;
 
                                 dikeResult.innerHTML = "Add base tracks and route records, then kick 'Calculate'.";
-                                outputView.innerHTML = "Waiting for calculation...<br>";
+                                outputView.innerHTML = "No geometry to display.<br>";
                                 outputDike.innerHTML = "Waiting for calculation...<br>";
                         }
 
@@ -463,7 +463,7 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                 dikeResult.innerHTML = "Calculating...";
                                 window.scrollTo(0, 0);
 
-                                outputDike.innerHTML = "loading tracks/records<br>";
+                                outputDike.innerHTML = "Loading tracks/records<br>";
 
                                 for (let i = 0; i < dikeTracks.length; i++) {
                                         let file = dikeTracks[i];
@@ -482,7 +482,7 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                                 if (load == dikeTracks.length + dikeRecords.length) {
                                                         var timeThen = (new Date()).getTime();
                                                         var timeElapsed = timeThen - timePrev;
-                                                        outputDike.innerHTML += "loaded in " + timeElapsed + "ms <br>";
+                                                        outputDike.innerHTML += "Loaded in " + timeElapsed + " ms <br>";
 
                                                         timePrev = (new Date()).getTime();
                                                         let calculateResult = dikeModule._calculateCalculate(dikeInstance);
@@ -494,11 +494,11 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                                         let calculateRejectedPath    = dikeModule.getValue(calculateResult + 28, '*');
                                                         timeThen = (new Date()).getTime();
                                                         timeElapsed = timeThen - timePrev;
-                                                        outputDike.innerHTML += "calculated in " + timeElapsed + "ms <br>";
+                                                        outputDike.innerHTML += "Calculated in " + timeElapsed + " ms <br>";
 
                                                         outputDike.innerHTML += `<p>`;
-                                                        outputDike.innerHTML += `points  : ${(calculateMatchedPoints * 100 / calculateTotalPoints).toFixed(3)} (${calculateMatchedPoints} / ${calculateTotalPoints})<br>`;
-                                                        outputDike.innerHTML += `distance: ${(calculateMatchedDistance * 100 / calculateTotalDistance).toFixed(3)} (${calculateMatchedDistance.toFixed(3)} / ${calculateTotalDistance.toFixed(3)})<br>`;
+                                                        outputDike.innerHTML += `Points  : ${(calculateMatchedPoints * 100 / calculateTotalPoints).toFixed(3)} (${calculateMatchedPoints} / ${calculateTotalPoints})<br>`;
+                                                        outputDike.innerHTML += `Distance: ${(calculateMatchedDistance * 100 / calculateTotalDistance).toFixed(3)} (${calculateMatchedDistance.toFixed(3)} / ${calculateTotalDistance.toFixed(3)})<br>`;
                                                         outputDike.innerHTML += `</p>`;
 
                                                         dikeResult.innerHTML = `% ${(calculateMatchedDistance * 100 / calculateTotalDistance).toFixed(3)} (${calculateMatchedDistance.toFixed(3)} / ${calculateTotalDistance.toFixed(3)})<br>`;
@@ -508,7 +508,7 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                                         dikeModule._calculateResultFree(calculateResult);
                                                 }
                                         }
-                                        outputDike.innerHTML += `loading: ${dikeTracks[i].name}<br>`;
+                                        outputDike.innerHTML += `Loading: ${dikeTracks[i].name}<br>`;
                                         fileReader.readAsArrayBuffer(file);
                                 }
 
@@ -529,7 +529,7 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                                 if (load == dikeTracks.length + dikeRecords.length) {
                                                         var timeThen = (new Date()).getTime();
                                                         var timeElapsed = timeThen - timePrev;
-                                                        outputDike.innerHTML += "loaded in " + timeElapsed + "ms <br>";
+                                                        outputDike.innerHTML += "Loaded in " + timeElapsed + " ms <br>";
 
                                                         timePrev = (new Date()).getTime();
                                                         let calculateResult = dikeModule._calculateCalculate(dikeInstance);
@@ -541,26 +541,26 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                                         let calculateRejectedPath    = dikeModule.getValue(calculateResult + 28, '*');
                                                         timeThen = (new Date()).getTime();
                                                         timeElapsed = timeThen - timePrev;
-                                                        outputDike.innerHTML += "calculated in " + timeElapsed + "ms <br>";
+                                                        outputDike.innerHTML += "Calculated in " + timeElapsed + " ms <br>";
 
                                                         outputDike.innerHTML += `<p>`;
-                                                        outputDike.innerHTML += `points  : ${(calculateMatchedPoints * 100 / calculateTotalPoints).toFixed(3)} (${calculateMatchedPoints} / ${calculateTotalPoints})<br>`;
-                                                        outputDike.innerHTML += `distance: ${(calculateMatchedDistance * 100 / calculateTotalDistance).toFixed(3)} (${calculateMatchedDistance.toFixed(3)} / ${calculateTotalDistance.toFixed(3)})<br>`;
+                                                        outputDike.innerHTML += `Points  : ${(calculateMatchedPoints * 100 / calculateTotalPoints).toFixed(3)} (${calculateMatchedPoints} / ${calculateTotalPoints})<br>`;
+                                                        outputDike.innerHTML += `Distance: ${(calculateMatchedDistance * 100 / calculateTotalDistance).toFixed(3)} (${calculateMatchedDistance.toFixed(3)} / ${calculateTotalDistance.toFixed(3)})<br>`;
                                                         outputDike.innerHTML += `</p>`;
 
-                                                        dikeResult.innerHTML = `% ${(calculateMatchedDistance * 100 / calculateTotalDistance).toFixed(3)} (${calculateMatchedDistance.toFixed(3)} / ${calculateTotalDistance.toFixed(3)})<br>`;
+                                                        dikeResult.innerHTML = `% ${(calculateMatchedDistance * 100 / calculateTotalDistance).toFixed(3)} (${calculateMatchedDistance.toFixed(3)} / ${calculateTotalDistance.toFixed(3)} meters)<br>`;
 
                                                         renderCalculationView(calculateAcceptedPath, calculateRejectedPath);
                                                         dikeModule._calculateResultFree(calculateResult);
                                                 }
                                         }
-                                        outputDike.innerHTML += `loading: ${dikeRecords[i].name}<br>`;
+                                        outputDike.innerHTML += `Loading: ${dikeRecords[i].name}<br>`;
                                         fileReader.readAsArrayBuffer(file);
                                 }
                         }
 
                         dikeResult.innerHTML = "Add base tracks and route records, then kick 'Calculate'.";
-                        outputView.innerHTML = "Waiting for calculation...<br>";
+                        outputView.innerHTML = "No geometry to display.<br>";
                         outputDike.innerHTML = "Waiting for calculation...<br>";
 
                         inputDikeTracksList.innerHTML = "(empty)";
@@ -664,7 +664,7 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                                 <div class="card-header bg-light">
                                                         <h5 class="mb-0"><i class="bi bi-terminal"></i> Calculation Output</h5>
                                                 </div>
-                                                <div id="outputDike" class="card-body font-monospace" style="min-height: 100px; font-size: 0.9rem;">
+                                                <div id="outputDike" class="card-body font-monospace" style="min-height: 100px; font-size: 0.9rem; white-space: pre-wrap; font-family: monospace;">
                                                 </div>
                                         </div>
                                 </div>
