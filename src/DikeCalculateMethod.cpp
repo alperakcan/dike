@@ -6,82 +6,82 @@
 #include <string>
 
 #include "DikeDebug.hpp"
-#include "DikeMethod.hpp"
-#include "DikeMethodBruteForce.hpp"
-#include "DikeMethodQuadTree.hpp"
+#include "DikeCalculateMethod.hpp"
+#include "DikeCalculateMethodBruteForce.hpp"
+#include "DikeCalculateMethodQuadTree.hpp"
 
-DikeMethodOptions::DikeMethodOptions (void)
+DikeCalculateMethodOptions::DikeCalculateMethodOptions (void)
 {
         coverageRadius = 250;
 }
 
-DikeMethodOptions::~DikeMethodOptions (void)
+DikeCalculateMethodOptions::~DikeCalculateMethodOptions (void)
 {
 
 }
 
-DikeMethod::DikeMethod (const DikeMethodOptions &options)
+DikeCalculateMethod::DikeCalculateMethod (const DikeCalculateMethodOptions &options)
 {
         _coverageRadius = options.coverageRadius;
 }
 
-DikeMethod::~DikeMethod (void)
+DikeCalculateMethod::~DikeCalculateMethod (void)
 {
 
 }
 
-int DikeMethod::addTrack (DikePath &path)
+int DikeCalculateMethod::addTrack (DikePath &path)
 {
         return addTrack(&path);
 }
 
-int DikeMethod::addRecord (DikePath &path)
+int DikeCalculateMethod::addRecord (DikePath &path)
 {
         return addRecord(&path);
 }
 
-int DikeMethod::getCoverageRadius (void)
+int DikeCalculateMethod::getCoverageRadius (void)
 {
         return _coverageRadius;
 }
 
-DikeMethod * DikeMethod::DikeMethodCreateWithType (DikeMethod::Type type, const DikeMethodOptions &options)
+DikeCalculateMethod * DikeCalculateMethod::DikeCalculateMethodCreateWithType (DikeCalculateMethod::Type type, const DikeCalculateMethodOptions &options)
 {
-        if (type == DikeMethod::TypeBruteForce) {
-                return new DikeMethodBruteForce(options);
+        if (type == DikeCalculateMethod::TypeBruteForce) {
+                return new DikeCalculateMethodBruteForce(options);
         }
-        if (type == DikeMethod::TypeQuadTree) {
-                return new DikeMethodQuadTree(options);
+        if (type == DikeCalculateMethod::TypeQuadTree) {
+                return new DikeCalculateMethodQuadTree(options);
         }
         dikeErrorf("type: %d is invalid", type);
         return NULL;
 }
 
-DikeMethod * DikeMethod::DikeMethodCreateWithType (std::string &type, const DikeMethodOptions &options)
+DikeCalculateMethod * DikeCalculateMethod::DikeCalculateMethodCreateWithType (std::string &type, const DikeCalculateMethodOptions &options)
 {
-        return DikeMethodCreateWithType(DikeMethodTypeFromString(type), options);
+        return DikeCalculateMethodCreateWithType(DikeCalculateMethodTypeFromString(type), options);
 }
 
-DikeMethod * DikeMethod::DikeMethodCreateWithType (const char *type, const DikeMethodOptions &options)
+DikeCalculateMethod * DikeCalculateMethod::DikeCalculateMethodCreateWithType (const char *type, const DikeCalculateMethodOptions &options)
 {
-        return DikeMethodCreateWithType(DikeMethodTypeFromString(type), options);
+        return DikeCalculateMethodCreateWithType(DikeCalculateMethodTypeFromString(type), options);
 }
 
-DikeMethod::Type DikeMethod::DikeMethodTypeFromString (std::string &type)
+DikeCalculateMethod::Type DikeCalculateMethod::DikeCalculateMethodTypeFromString (std::string &type)
 {
-        return DikeMethodTypeFromString(type.c_str());
+        return DikeCalculateMethodTypeFromString(type.c_str());
 }
 
-DikeMethod::Type DikeMethod::DikeMethodTypeFromString (const char *type)
+DikeCalculateMethod::Type DikeCalculateMethod::DikeCalculateMethodTypeFromString (const char *type)
 {
         if (type == NULL) {
-                return DikeMethod::TypeInvalid;
+                return DikeCalculateMethod::TypeInvalid;
         }
         if (strcasecmp(type, "bruteforce") == 0) {
-                return DikeMethod::TypeBruteForce;
+                return DikeCalculateMethod::TypeBruteForce;
         }
         if (strcasecmp(type, "quadtree") == 0) {
-                return DikeMethod::TypeQuadTree;
+                return DikeCalculateMethod::TypeQuadTree;
         }
-        return DikeMethod::TypeInvalid;
+        return DikeCalculateMethod::TypeInvalid;
 }

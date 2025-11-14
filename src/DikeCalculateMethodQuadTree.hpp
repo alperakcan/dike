@@ -3,23 +3,23 @@
 #define DIKE_METHOD_QUADTREE_HPP
 
 #include "DikePath.hpp"
-#include "DikeMethod.hpp"
+#include "DikeCalculateMethod.hpp"
 
-class DikeMethodQuadTreePrivate;
+class DikeCalculateMethodQuadTreePrivate;
 
-class DikeMethodQuadTree:
-        public DikeMethod {
+class DikeCalculateMethodQuadTree:
+        public DikeCalculateMethod {
 public:
-        DikeMethodQuadTree (const DikeMethodOptions &options);
-        virtual ~DikeMethodQuadTree (void);
+        DikeCalculateMethodQuadTree (const DikeCalculateMethodOptions &options);
+        virtual ~DikeCalculateMethodQuadTree (void);
 
         virtual int addTrack (DikePath *path);
         virtual int addRecord (DikePath *path);
 
-        virtual std::tuple<int, int, int, double, double>  calculate (void);
+        virtual std::tuple<int, int, int, double, double, std::unique_ptr<DikePath>, std::unique_ptr<DikePath>>  calculate (void);
 
 private:
-        DikeMethodQuadTreePrivate *_private;
+        DikeCalculateMethodQuadTreePrivate *_private;
 };
 
 #endif

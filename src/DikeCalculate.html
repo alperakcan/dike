@@ -210,8 +210,8 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                 let load;
                                 var timePrev = (new Date()).getTime();
 
-                                let method         = document.getElementById("dikeMethod").value;
-                                let coverageRadius = parseInt(document.getElementById("dikeMethodCoverageRadius").value);
+                                let method         = document.getElementById("DikeCalculateMethod").value;
+                                let coverageRadius = parseInt(document.getElementById("DikeCalculateMethodCoverageRadius").value);
                                 let methodUTF8     = stringToUTF8Array(method);
                                 let methodRaw      = dikeModule._malloc(methodUTF8.length);;
                                 dikeModule.HEAPU8.set(methodUTF8, methodRaw);
@@ -379,16 +379,16 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                                         </h5>
                                                         <div class="row g-3 mb-3">
                                                                 <div class="col-md-6">
-                                                                        <label for="dikeMethod" class="form-label fw-bold">Calculation Method</label>
-                                                                        <select id="dikeMethod" class="form-select">
+                                                                        <label for="DikeCalculateMethod" class="form-label fw-bold">Calculation Method</label>
+                                                                        <select id="DikeCalculateMethod" class="form-select">
                                                                                 <option value="quadtree" selected>QuadTree (Recommended)</option>
                                                                                 <option value="bruteforce" disabled>Brute Force (Too Slow)</option>
                                                                         </select>
                                                                         <small class="text-muted">QuadTree provides efficient spatial indexing for fast calculations</small>
                                                                 </div>
                                                                 <div class="col-md-6">
-                                                                        <label for="dikeMethodCoverageRadius" class="form-label fw-bold">Coverage Radius (meters)</label>
-                                                                        <input id="dikeMethodCoverageRadius" type="number" class="form-control" placeholder="Coverage Radius" value="250" min="1" />
+                                                                        <label for="DikeCalculateMethodCoverageRadius" class="form-label fw-bold">Coverage Radius (meters)</label>
+                                                                        <input id="DikeCalculateMethodCoverageRadius" type="number" class="form-control" placeholder="Coverage Radius" value="250" min="1" />
                                                                         <small class="text-muted">Maximum distance to consider a point as matched</small>
                                                                 </div>
                                                         </div>

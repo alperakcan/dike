@@ -8,7 +8,7 @@
 
 #define DIKE_DEBUG_NAME "DikeCalculate"
 #include "DikeDebug.hpp"
-#include "DikeMethod.hpp"
+#include "DikeCalculateMethod.hpp"
 #include "DikePath.hpp"
 
 #define OPTION_HELP                     'h'
@@ -89,9 +89,9 @@ int main (int argc, char **argv)
         std::vector<std::string> o_records;
         int o_coverageRadius;
 
-        DikeMethod *method;
-        DikeMethodOptions options;
-        std::tuple<int, int, int, double, double> calc;
+        DikeCalculateMethod *method;
+        DikeCalculateMethodOptions options;
+        std::tuple<int, int, int, double, double, std::unique_ptr<DikePath>, std::unique_ptr<DikePath>> calc;
 
         rs = 0;
         method = NULL;
@@ -148,10 +148,10 @@ int main (int argc, char **argv)
                 dikeInfof("    - %s", o_records[i].c_str());
         }
 
-        options = DikeMethodOptions();
+        options = DikeCalculateMethodOptions();
         options.coverageRadius = o_coverageRadius;
 
-        method = DikeMethod::DikeMethodCreateWithType(o_method, options);
+        method = DikeCalculateMethod::DikeCalculateMethodCreateWithType(o_method, options);
         if (method == NULL) {
                 dikeErrorf("can not create method: %s", o_method.c_str());
                 goto bail;
@@ -195,19 +195,21 @@ int main (int argc, char **argv)
 
         dikeInfof("calculating:");
         calc = method->calculate();
-        if (std::get<DikeMethod::CalculateFieldStatus>(calc) < 0) {
+        if (std::get<DikeCalculateMethod::CalculateFieldStatus>(calc) < 0) {
                 dikeErrorf("can not calculate");
                 goto bail;
         }
 
         dikeInfof("  points  : %%%.3f (%d / %d)",
-                std::get<DikeMethod::CalculateFieldMatchedPoints>(calc) * 100.0 / std::get<DikeMethod::CalculateFieldTotalPoints>(calc),
-                std::get<DikeMethod::CalculateFieldMatchedPoints>(calc),
-                std::get<DikeMethod::CalculateFieldTotalPoints>(calc));
+                std::get<DikeCalculateMethod::CalculateFieldMatchedPoints>(calc) * 100.0 / std::get<DikeCalculateMethod::CalculateFieldTotalPoints>(calc),
+                std::get<DikeCalculateMethod::CalculateFieldMatchedPoints>(calc),
+                std::get<DikeCalculateMethod::CalculateFieldTotalPoints>(calc));
         dikeInfof("  distance: %%%.3f (%.3f / %.3f)",
-                std::get<DikeMethod::CalculateFieldMatchedDistance>(calc) * 100.0 / std::get<DikeMethod::CalculateFieldTotalDistance>(calc),
-                std::get<DikeMethod::CalculateFieldMatchedDistance>(calc),
-                std::get<DikeMethod::CalculateFieldTotalDistance>(calc));
+                std::get<DikeCalculateMethod::CalculateFieldMatchedDistance>(calc) * 100.0 / std::get<DikeCalculateMethod::CalculateFieldTotalDistance>(calc),
+                std::get<DikeCalculateMethod::CalculateFieldMatchedDistance>(calc),
+                std::get<DikeCalculateMethod::CalculateFieldTotalDistance>(calc));
+
+
 
 out:
         if (method != NULL) {

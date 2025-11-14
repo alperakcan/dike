@@ -362,6 +362,7 @@ public:
 
         int moveTo (DikePoint &point);
         int lineTo (DikePoint &point);
+        int addPoint (DikePath::Command command, DikePoint &point);
 
         int getPointsCount (void);
         std::tuple<DikePath::Command, DikePoint> * getPoint (int index);
@@ -382,13 +383,30 @@ DikePathPrivate::~DikePathPrivate (void)
 
 int DikePathPrivate::moveTo (DikePoint &point)
 {
-        _points.push_back(std::tuple<DikePath::Command, DikePoint>(DikePath::CommandMoveTo, point));
-        return 0;
+        return addPoint(DikePath::CommandMoveTo, point);
 }
 
 int DikePathPrivate::lineTo (DikePoint &point)
 {
-        _points.push_back(std::tuple<DikePath::Command, DikePoint>(DikePath::CommandLineTo, point));
+        return addPoint(DikePath::CommandLineTo, point);
+}
+
+int DikePathPrivate::addPoint (DikePath::Command command, DikePoint &point)
+{
+        std::tuple<DikePath::Command, DikePoint> *lpoint;
+        if (getPointsCount() > 0) {
+                lpoint = getPoint(getPointsCount() - 1);
+                if ((std::get<0>(*lpoint) == command ||
+                    (std::get<0>(*lpoint) == DikePath::CommandLineTo && command == DikePath::CommandMoveTo) ||
+                    (std::get<0>(*lpoint) == DikePath::CommandMoveTo && command == DikePath::CommandLineTo)) &&
+                    std::get<1>(*lpoint).lon() == point.lon() &&
+                    std::get<1>(*lpoint).lat() == point.lat() &&
+                    std::get<1>(*lpoint).ele() == point.ele() &&
+                    std::get<1>(*lpoint).tim() == point.tim()) {
+                        return 0;
+                }
+        }
+        _points.push_back(std::tuple<DikePath::Command, DikePoint>(command, point));
         return 0;
 }
 
@@ -482,6 +500,16 @@ int DikePath::lineTo (DikePoint &point)
                 goto bail;
         }
         return _private->lineTo(point);
+bail:   return -1;
+}
+
+int DikePath::addPoint (DikePath::Command command, DikePoint &point)
+{
+        if (_private == NULL) {
+                dikeErrorf("private is invalid");
+                goto bail;
+        }
+        return _private->addPoint(command, point);
 bail:   return -1;
 }
 

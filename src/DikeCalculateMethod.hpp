@@ -3,18 +3,19 @@
 #define DIKE_METHOD_HPP
 
 #include <tuple>
+#include <memory>
 
 #include "DikePath.hpp"
 
-class DikeMethodOptions {
+class DikeCalculateMethodOptions {
 public:
-        DikeMethodOptions (void);
-        ~DikeMethodOptions (void);
+        DikeCalculateMethodOptions (void);
+        ~DikeCalculateMethodOptions (void);
 
         int coverageRadius;
 };
 
-class DikeMethod {
+class DikeCalculateMethod {
 public:
         typedef enum : int32_t {
                 TypeInvalid,
@@ -27,11 +28,13 @@ public:
                 CalculateFieldMatchedPoints     = 1,
                 CalculateFieldTotalPoints       = 2,
                 CalculateFieldMatchedDistance   = 3,
-                CalculateFieldTotalDistance     = 4
+                CalculateFieldTotalDistance     = 4,
+                CalculateFieldMatchedPath       = 5,
+                CalculateFieldRejectedPath      = 6
         } CalculateField;
 
-        DikeMethod (const DikeMethodOptions &options);
-        virtual ~DikeMethod (void);
+        DikeCalculateMethod (const DikeCalculateMethodOptions &options);
+        virtual ~DikeCalculateMethod (void);
 
         virtual int addTrack (DikePath &path);
         virtual int addRecord (DikePath &path);
@@ -41,14 +44,22 @@ public:
 
         int getCoverageRadius (void);
 
-        virtual std::tuple<int, int, int, double, double> calculate (void) = 0;
+        virtual std::tuple<
+                int,
+                int,
+                int,
+                double,
+                double,
+                std::unique_ptr<DikePath>,
+                std::unique_ptr<DikePath>
+                > calculate (void) = 0;
 
-        static DikeMethod * DikeMethodCreateWithType (DikeMethod::Type type, const DikeMethodOptions &options);
-        static DikeMethod * DikeMethodCreateWithType (std::string &type, const DikeMethodOptions &options);
-        static DikeMethod * DikeMethodCreateWithType (const char *type, const DikeMethodOptions &options);
+        static DikeCalculateMethod * DikeCalculateMethodCreateWithType (DikeCalculateMethod::Type type, const DikeCalculateMethodOptions &options);
+        static DikeCalculateMethod * DikeCalculateMethodCreateWithType (std::string &type, const DikeCalculateMethodOptions &options);
+        static DikeCalculateMethod * DikeCalculateMethodCreateWithType (const char *type, const DikeCalculateMethodOptions &options);
 
-        static DikeMethod::Type DikeMethodTypeFromString (std::string &type);
-        static DikeMethod::Type DikeMethodTypeFromString (const char *type);
+        static DikeCalculateMethod::Type DikeCalculateMethodTypeFromString (std::string &type);
+        static DikeCalculateMethod::Type DikeCalculateMethodTypeFromString (const char *type);
 
 private:
         int _coverageRadius;

@@ -10,7 +10,7 @@
 
 #define DIKE_DEBUG_NAME "DikeInflate"
 #include "DikeDebug.hpp"
-#include "DikeMethod.hpp"
+#include "DikeCalculateMethod.hpp"
 #include "DikePath.hpp"
 
 #define OPTION_HELP                     'h'

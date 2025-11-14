@@ -33,6 +33,8 @@ public:
         int lineTo (double lon, double lat, double ele, double tim);
         int lineTo (DikePoint &point);
 
+        int addPoint (DikePath::Command command, DikePoint &point);
+
         int getPointsCount (void);
         std::tuple<DikePath::Command, DikePoint> * getPoint (int index);
 

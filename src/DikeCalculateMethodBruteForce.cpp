@@ -5,6 +5,7 @@
 
 #include <tuple>
 #include <vector>
+#include <memory>
 
 #define DIKE_DEBUG_NAME "bruteforce"
 #include "DikeDebug.hpp"
@@ -21,7 +22,7 @@ public:
         int addRecord (DikePath *path);
         int setCoverageRadius (int radius);
 
-        std::tuple<int, int, int, double, double>  calculate (void);
+        std::tuple<int, int, int, double, double, std::unique_ptr<DikePath>, std::unique_ptr<DikePath>>  calculate (void);
 
 private:
         std::vector<DikePath *> _tracks;
@@ -63,7 +64,7 @@ int DikeCalculateMethodBruteForcePrivate::setCoverageRadius (int radius)
         return 0;
 }
 
-std::tuple<int, int, int, double, double>  DikeCalculateMethodBruteForcePrivate::calculate (void)
+std::tuple<int, int, int, double, double, std::unique_ptr<DikePath>, std::unique_ptr<DikePath>>  DikeCalculateMethodBruteForcePrivate::calculate (void)
 {
         int i, il;
         int j, jl;
@@ -78,8 +79,8 @@ std::tuple<int, int, int, double, double>  DikeCalculateMethodBruteForcePrivate:
         double dts;
         double mdts;
 
-        DikePath *track;
-        DikePath *record;
+        DikePath *trackAccepted;
+        DikePath *trackRejected;
 
         pts = 0;
         mpts = 0;
@@ -88,14 +89,14 @@ std::tuple<int, int, int, double, double>  DikeCalculateMethodBruteForcePrivate:
         dts = 0;
         mdts = 0;
 
-        track = new DikePath();
-        if (track == NULL) {
-                dikeErrorf("can not create track");
+        trackAccepted = new DikePath();
+        if (trackAccepted == NULL) {
+                dikeErrorf("can not create trackAccepted");
                 goto bail;
         }
-        record = new DikePath();
-        if (record == NULL) {
-                dikeErrorf("can not create record");
+        trackRejected = new DikePath();
+        if (trackRejected == NULL) {
+                dikeErrorf("can not create trackRejected");
                 goto bail;
         }
 
@@ -109,10 +110,6 @@ std::tuple<int, int, int, double, double>  DikeCalculateMethodBruteForcePrivate:
                         ppoint = (j == 0) ? NULL : _tracks[i]->getPoint(j - 1);
                         tpoint = _tracks[i]->getPoint(j);
 
-                        if (j == 0) {
-                                track->moveTo(std::get<1>(*tpoint));
-                        }
-
                         pts += 1;
                         dts += (ppoint == NULL) ? 0 : DikePoint::DikePointDistanceEuclidean(&std::get<1>(*ppoint), &std::get<1>(*tpoint));
 
@@ -124,12 +121,6 @@ std::tuple<int, int, int, double, double>  DikeCalculateMethodBruteForcePrivate:
                                         dikeDebugf("      - j: %d, l: %d", j, l);
                                         dist = DikePoint::DikePointDistanceEuclidean(&std::get<1>(*tpoint), &std::get<1>(*rpoint));
                                         if (dist <= _coverageRadius) {
-                                                if (pmpts) {
-                                                        mpts += 1;
-                                                        mdts += (ppoint == NULL) ? 0 : DikePoint::DikePointDistanceEuclidean(&std::get<1>(*ppoint), &std::get<1>(*tpoint));
-                                                } else if (j == 0) {
-                                                        mpts += 1;
-                                                }
                                                 break;
                                         }
                                 }
@@ -139,21 +130,38 @@ std::tuple<int, int, int, double, double>  DikeCalculateMethodBruteForcePrivate:
                         }
 
                         if (k < kl) {
+                                if (pmpts) {
+                                        mpts += 1;
+                                        mdts += (ppoint == NULL) ? 0 : DikePoint::DikePointDistanceEuclidean(&std::get<1>(*ppoint), &std::get<1>(*tpoint));
+                                } else if (j == 0) {
+                                        mpts += 1;
+                                }
+
+                                if (ppoint != NULL) {
+                                        trackAccepted->addPoint(DikePath::CommandMoveTo, std::get<1>(*ppoint));
+                                        trackAccepted->addPoint(DikePath::CommandLineTo, std::get<1>(*tpoint));
+                                }
+
                                 pmpts = 1;
                         } else {
+                                if (ppoint != NULL) {
+                                        trackRejected->addPoint(DikePath::CommandMoveTo, std::get<1>(*ppoint));
+                                        trackRejected->addPoint(DikePath::CommandLineTo, std::get<1>(*tpoint));
+                                }
+
                                 pmpts = 0;
                         }
                 }
         }
 
-        return std::tuple<int, int, int, double, double>(0, mpts, pts, mdts, dts);
-bail:   if (track != NULL) {
-                track->decref();
+        return std::tuple<int, int, int, double, double, std::unique_ptr<DikePath>, std::unique_ptr<DikePath>>(0, mpts, pts, mdts, dts, trackAccepted, trackRejected);
+bail:   if (trackAccepted != NULL) {
+                trackAccepted->decref();
         }
-        if (record != NULL) {
-                record->decref();
+        if (trackRejected != NULL) {
+                trackRejected->decref();
         }
-        return std::tuple<int, int, int, double, double>(-1, 0, 0, 0, 0);
+        return std::tuple<int, int, int, double, double, std::unique_ptr<DikePath>, std::unique_ptr<DikePath>>(-1, 0, 0, 0, 0, nullptr, nullptr);
 }
 
 DikeCalculateMethodBruteForce::DikeCalculateMethodBruteForce (const DikeCalculateMethodOptions &options)
@@ -190,12 +198,12 @@ int DikeCalculateMethodBruteForce::addRecord (DikePath *path)
 bail:   return -1;
 }
 
-std::tuple<int, int, int, double, double>  DikeCalculateMethodBruteForce::calculate (void)
+std::tuple<int, int, int, double, double, std::unique_ptr<DikePath>, std::unique_ptr<DikePath>>  DikeCalculateMethodBruteForce::calculate (void)
 {
         if (_private == NULL) {
                 dikeErrorf("private is invalid");
                 goto bail;
         }
         return _private->calculate();
-bail:   return std::tuple<int, int, int, double, double>(-1, 0, 0, 0, 0);
+bail:   return std::tuple<int, int, int, double, double, std::unique_ptr<DikePath>, std::unique_ptr<DikePath>>(-1, 0, 0, 0, 0, nullptr, nullptr);
 }

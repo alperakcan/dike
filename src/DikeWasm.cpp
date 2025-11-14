@@ -10,7 +10,7 @@
 
 #define DIKE_DEBUG_NAME "dike"
 #include "DikeDebug.hpp"
-#include "DikeMethod.hpp"
+#include "DikeCalculateMethod.hpp"
 #include "DikePath.hpp"
 
 enum {
@@ -48,7 +48,7 @@ struct DikeCalculateResult {
 };
 
 struct DikeCalculate {
-        DikeMethod *method;
+        DikeCalculateMethod *method;
 };
 
 extern "C" int inflateDestroy (struct DikeInflate *dikeInflate)
@@ -346,7 +346,7 @@ bail:   return -1;
 extern "C" int calculateSetMethod (struct DikeCalculate *dikeCalculate, const char *method, int coverageRadius)
 {
         int rc;
-        DikeMethodOptions options;
+        DikeCalculateMethodOptions options;
 
         if (dikeCalculate == NULL) {
                 dikeErrorf("dikeCalculate is invalid");
@@ -367,10 +367,10 @@ extern "C" int calculateSetMethod (struct DikeCalculate *dikeCalculate, const ch
                 goto bail;
         }
 
-        options = DikeMethodOptions();
+        options = DikeCalculateMethodOptions();
         options.coverageRadius = coverageRadius;
 
-        dikeCalculate->method = DikeMethod::DikeMethodCreateWithType(method, options);
+        dikeCalculate->method = DikeCalculateMethod::DikeCalculateMethodCreateWithType(method, options);
         if (dikeCalculate->method == NULL) {
                 dikeErrorf("can not create method: %s", method);
                 goto bail;
@@ -483,26 +483,26 @@ extern "C" struct DikeCalculateResult * calculateCalculate (struct DikeCalculate
         }
 
         calc = dikeCalculate->method->calculate();
-        if (std::get<DikeMethod::CalculateFieldStatus>(calc) < 0) {
+        if (std::get<DikeCalculateMethod::CalculateFieldStatus>(calc) < 0) {
                 dikeErrorf("can not calculate");
                 goto bail;
         }
 
         dikeInfof("  points  : %%%.3f (%d / %d)",
-                std::get<DikeMethod::CalculateFieldMatchedPoints>(calc) * 100.0 / std::get<DikeMethod::CalculateFieldTotalPoints>(calc),
-                std::get<DikeMethod::CalculateFieldMatchedPoints>(calc),
-                std::get<DikeMethod::CalculateFieldTotalPoints>(calc));
+                std::get<DikeCalculateMethod::CalculateFieldMatchedPoints>(calc) * 100.0 / std::get<DikeCalculateMethod::CalculateFieldTotalPoints>(calc),
+                std::get<DikeCalculateMethod::CalculateFieldMatchedPoints>(calc),
+                std::get<DikeCalculateMethod::CalculateFieldTotalPoints>(calc));
         dikeInfof("  distance: %%%.3f (%.3f / %.3f)",
-                std::get<DikeMethod::CalculateFieldMatchedDistance>(calc) * 100.0 / std::get<DikeMethod::CalculateFieldTotalDistance>(calc),
-                std::get<DikeMethod::CalculateFieldMatchedDistance>(calc),
-                std::get<DikeMethod::CalculateFieldTotalDistance>(calc));
+                std::get<DikeCalculateMethod::CalculateFieldMatchedDistance>(calc) * 100.0 / std::get<DikeCalculateMethod::CalculateFieldTotalDistance>(calc),
+                std::get<DikeCalculateMethod::CalculateFieldMatchedDistance>(calc),
+                std::get<DikeCalculateMethod::CalculateFieldTotalDistance>(calc));
 
 
         calculateResult = (struct DikeCalculateResult *) malloc(sizeof(struct DikeCalculateResult));
-        calculateResult->matched_points   = std::get<DikeMethod::CalculateFieldMatchedPoints>(calc);
-        calculateResult->total_points     = std::get<DikeMethod::CalculateFieldTotalPoints>(calc);
-        calculateResult->matched_distance = std::get<DikeMethod::CalculateFieldMatchedDistance>(calc);
-        calculateResult->total_distance   = std::get<DikeMethod::CalculateFieldTotalDistance>(calc);
+        calculateResult->matched_points   = std::get<DikeCalculateMethod::CalculateFieldMatchedPoints>(calc);
+        calculateResult->total_points     = std::get<DikeCalculateMethod::CalculateFieldTotalPoints>(calc);
+        calculateResult->matched_distance = std::get<DikeCalculateMethod::CalculateFieldMatchedDistance>(calc);
+        calculateResult->total_distance   = std::get<DikeCalculateMethod::CalculateFieldTotalDistance>(calc);
 
         return calculateResult;
 bail:   return NULL;

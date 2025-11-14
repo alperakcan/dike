@@ -15,9 +15,9 @@ endif
 
 Dike_files-y += \
 	DikeDebug.cpp \
-	DikeMethod.cpp \
-	DikeMethodBruteForce.cpp \
-	DikeMethodQuadTree.cpp \
+	DikeCalculateMethod.cpp \
+	DikeCalculateMethodBruteForce.cpp \
+	DikeCalculateMethodQuadTree.cpp \
 	DikePoint.cpp \
 	DikePath.cpp \
 	DikeProjection.cpp \
