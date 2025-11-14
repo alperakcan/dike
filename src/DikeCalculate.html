@@ -47,7 +47,6 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                         await DikeWasm({
                                                 locateFile: (path) => path.endsWith('.wasm') ? `${path}?v=${WASM_VERSION}` : path
                                         }).then(function(Module) {
-                                                console.log("dikeModuleES6 loaded");
                                                 dikeModule = Module;
                                                 var timePrev = (new Date()).getTime();
                                                 dikeInstance = dikeModule._calculateCreate();
