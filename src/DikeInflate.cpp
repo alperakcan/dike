@@ -14,6 +14,7 @@
 #include "DikePath.hpp"
 
 #define OPTION_HELP                     'h'
+#define OPTION_LICENSE                  'l'
 #define OPTION_DEBUG                    'd'
 #define OPTION_METHOD                   'm'
 #define OPTION_TRACK                    't'
@@ -26,6 +27,7 @@
 
 static struct option long_options[] = {
         { "help",               no_argument,            NULL,   OPTION_HELP             },
+        { "license",            no_argument,            NULL,   OPTION_LICENSE          },
         { "debug",              required_argument,      NULL,   OPTION_DEBUG            },
         { "method",             required_argument,      NULL,   OPTION_METHOD           },
         { "track",              required_argument,      NULL,   OPTION_TRACK            },
@@ -48,6 +50,28 @@ static void print_usage (const char *pname)
         fprintf(stdout, "  -o, --output         : output file (default: %s)\n", OPTION_OUTPUT_DEFAULT);
         fprintf(stdout, "  -c, --coverageRadius : coverage radius (default: %d meters)\n", OPTION_COVERAGE_RADIUS_DEFAULT);
         fprintf(stdout, "  -h, --help           : this text\n");
+        fprintf(stdout, "  -l, --license        : show license information\n");
+}
+
+static void print_license (void)
+{
+        fprintf(stdout, "Dike - Route Success Calculator and Inflator\n");
+        fprintf(stdout, "\n");
+        fprintf(stdout, "This is free and unencumbered software released into the public domain.\n");
+        fprintf(stdout, "\n");
+        fprintf(stdout, "Anyone is free to copy, modify, publish, use, compile, sell, or\n");
+        fprintf(stdout, "distribute this software, either in source code form or as a compiled\n");
+        fprintf(stdout, "binary, for any purpose, commercial or non-commercial, and by any means.\n");
+        fprintf(stdout, "\n");
+        fprintf(stdout, "For more information, please refer to <https://unlicense.org/>\n");
+        fprintf(stdout, "\n");
+        fprintf(stdout, "This project incorporates the following third-party libraries:\n");
+        fprintf(stdout, "  - Clipper2 (Boost Software License)\n");
+        fprintf(stdout, "  - Expat XML Parser (MIT License)\n");
+        fprintf(stdout, "  - RapidJSON (MIT License)\n");
+        fprintf(stdout, "  - zip library (MIT License)\n");
+        fprintf(stdout, "\n");
+        fprintf(stdout, "For full third-party license information, see the LICENSE file.\n");
 }
 
 int main (int argc, char **argv)
@@ -85,10 +109,13 @@ int main (int argc, char **argv)
         DikeDebugInit();
         DikeDebugSetLevel(DikeDebugLevelFromString(OPTION_DEBUG_DEFAULT));
 
-        while ((o = getopt_long(argc, argv, "hd:m:t:o:c:", long_options, &oi)) != -1) {
+        while ((o = getopt_long(argc, argv, "hld:m:t:o:c:", long_options, &oi)) != -1) {
                 switch (o) {
                         case 'h':
                                 print_usage(argv[0]);
+                                goto out;
+                        case 'l':
+                                print_license();
                                 goto out;
                         case OPTION_DEBUG:
                                 DikeDebugSetLevel(optarg);
