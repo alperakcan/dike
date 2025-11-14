@@ -42,7 +42,10 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
 
                         function init () {
                                 (async () => {
-                                        await DikeWasm().then(function(Module) {
+                                        const WASM_VERSION = '20251114';
+                                        await DikeWasm({
+                                                locateFile: (path) => path.endsWith('.wasm') ? `${path}?v=${WASM_VERSION}` : path
+                                        }).then(function(Module) {
                                                 console.log("dikeModuleES6 loaded");
                                                 dikeModule = Module;
                                                 var timePrev = (new Date()).getTime();
@@ -546,9 +549,6 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                                         outputDike.innerHTML += `</p>`;
 
                                                         dikeResult.innerHTML = `% ${(calculateMatchedDistance * 100 / calculateTotalDistance).toFixed(3)} (${calculateMatchedDistance.toFixed(3)} / ${calculateTotalDistance.toFixed(3)})<br>`;
-
-                                                        console.log("Accepted Path Pointer: ", calculateAcceptedPath);
-                                                        console.log("Rejected Path Pointer: ", calculateRejectedPath);
 
                                                         renderCalculationView(calculateAcceptedPath, calculateRejectedPath);
                                                         dikeModule._calculateResultFree(calculateResult);
