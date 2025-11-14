@@ -1,0 +1,25 @@
+
+# Authors
+
+This file lists the contributors to the Dike project.
+
+## Original Author
+
+Alper Akcan <alper.akcan@gmail.com>
+
+## Contributors
+
+(Contributors will be listed here as the project grows)
+
+## Acknowledgments
+
+Special thanks to the authors and maintainers of the third-party libraries
+that make this project possible:
+
+- Angus Johnson (Clipper2)
+- Thai Open Source Software Center Ltd, Clark Cooper, and Expat maintainers (Expat XML Parser)
+- Milo Yip and Tencent (RapidJSON)
+- Kuba Podgórski (zip library)
+- The open-source community
+
+For full third-party license information, see the LICENSE file.
