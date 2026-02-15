@@ -1,7 +1,7 @@
 // This code implements the `-sMODULARIZE` settings by taking the generated
 // JS program code (INNER_JS_CODE) and wrapping it in a factory function.
 
-// When targetting node and ES6 we use `await import ..` in the generated code
+// When targeting node and ES6 we use `await import ..` in the generated code
 // so the outer function needs to be marked as async.
 async function DikeWasm(moduleArg = {}) {
   var moduleRtn;
@@ -38,7 +38,7 @@ var ENVIRONMENT_IS_NODE = globalThis.process?.versions?.node && globalThis.proce
 if (ENVIRONMENT_IS_NODE) {
   // When building an ES module `require` is not normally available.
   // We need to use `createRequire()` to construct the require()` function.
-  const {createRequire} = await import("module");
+  const {createRequire} = await import("node:module");
   /** @suppress{duplicate} */ var require = createRequire(import.meta.url);
 }
 
@@ -70,9 +70,9 @@ var readAsync, readBinary;
 if (ENVIRONMENT_IS_NODE) {
   // These modules will usually be used on Node.js. Load them eagerly to avoid
   // the complexity of lazy-loading.
-  var fs = require("fs");
+  var fs = require("node:fs");
   if (_scriptName.startsWith("file:")) {
-    scriptDirectory = require("path").dirname(require("url").fileURLToPath(_scriptName)) + "/";
+    scriptDirectory = require("node:path").dirname(require("node:url").fileURLToPath(_scriptName)) + "/";
   }
   // include: node_shell_read.js
   readBinary = filename => {
@@ -290,7 +290,7 @@ function getBinarySync(file) {
   if (readBinary) {
     return readBinary(file);
   }
-  // Throwing a plain string here, even though it not normally adviables since
+  // Throwing a plain string here, even though it not normally advisable since
   // this gets turning into an `abort` in instantiateArrayBuffer.
   throw "both async and sync fetching of the wasm failed";
 }
@@ -411,9 +411,9 @@ var onPreRuns = [];
 var addOnPreRun = cb => onPreRuns.push(cb);
 
 /**
-     * @param {number} ptr
-     * @param {string} type
-     */ function getValue(ptr, type = "i8") {
+   * @param {number} ptr
+   * @param {string} type
+   */ function getValue(ptr, type = "i8") {
   if (type.endsWith("*")) type = "*";
   switch (type) {
    case "i1":
@@ -465,15 +465,15 @@ var findStringEnd = (heapOrArray, idx, maxBytesToRead, ignoreNul) => {
 };
 
 /**
-     * Given a pointer 'idx' to a null-terminated UTF8-encoded string in the given
-     * array that contains uint8 values, returns a copy of that string as a
-     * Javascript String object.
-     * heapOrArray is either a regular array, or a JavaScript typed array view.
-     * @param {number=} idx
-     * @param {number=} maxBytesToRead
-     * @param {boolean=} ignoreNul - If true, the function will not stop on a NUL character.
-     * @return {string}
-     */ var UTF8ArrayToString = (heapOrArray, idx = 0, maxBytesToRead, ignoreNul) => {
+   * Given a pointer 'idx' to a null-terminated UTF8-encoded string in the given
+   * array that contains uint8 values, returns a copy of that string as a
+   * Javascript String object.
+   * heapOrArray is either a regular array, or a JavaScript typed array view.
+   * @param {number=} idx
+   * @param {number=} maxBytesToRead
+   * @param {boolean=} ignoreNul - If true, the function will not stop on a NUL character.
+   * @return {string}
+   */ var UTF8ArrayToString = (heapOrArray, idx = 0, maxBytesToRead, ignoreNul) => {
   var endPtr = findStringEnd(heapOrArray, idx, maxBytesToRead, ignoreNul);
   // When using conditional TextDecoder, skip it for short strings as the overhead of the native call is not worth it.
   if (endPtr - idx > 16 && heapOrArray.buffer && UTF8Decoder) {
@@ -512,18 +512,18 @@ var findStringEnd = (heapOrArray, idx, maxBytesToRead, ignoreNul) => {
 };
 
 /**
-     * Given a pointer 'ptr' to a null-terminated UTF8-encoded string in the
-     * emscripten HEAP, returns a copy of that string as a Javascript String object.
-     *
-     * @param {number} ptr
-     * @param {number=} maxBytesToRead - An optional length that specifies the
-     *   maximum number of bytes to read. You can omit this parameter to scan the
-     *   string until the first 0 byte. If maxBytesToRead is passed, and the string
-     *   at [ptr, ptr+maxBytesToReadr[ contains a null byte in the middle, then the
-     *   string will cut short at that byte index.
-     * @param {boolean=} ignoreNul - If true, the function will not stop on a NUL character.
-     * @return {string}
-     */ var UTF8ToString = (ptr, maxBytesToRead, ignoreNul) => ptr ? UTF8ArrayToString(HEAPU8, ptr, maxBytesToRead, ignoreNul) : "";
+   * Given a pointer 'ptr' to a null-terminated UTF8-encoded string in the
+   * emscripten HEAP, returns a copy of that string as a Javascript String object.
+   *
+   * @param {number} ptr
+   * @param {number=} maxBytesToRead - An optional length that specifies the
+   *   maximum number of bytes to read. You can omit this parameter to scan the
+   *   string until the first 0 byte. If maxBytesToRead is passed, and the string
+   *   at [ptr, ptr+maxBytesToReadr[ contains a null byte in the middle, then the
+   *   string will cut short at that byte index.
+   * @param {boolean=} ignoreNul - If true, the function will not stop on a NUL character.
+   * @return {string}
+   */ var UTF8ToString = (ptr, maxBytesToRead, ignoreNul) => ptr ? UTF8ArrayToString(HEAPU8, ptr, maxBytesToRead, ignoreNul) : "";
 
 var ___assert_fail = (condition, filename, line, func) => abort(`Assertion failed: ${UTF8ToString(condition)}, at: ` + [ filename ? UTF8ToString(filename) : "unknown filename", line, func ? UTF8ToString(func) : "unknown function" ]);
 
@@ -672,7 +672,7 @@ var PATH = {
 var initRandomFill = () => {
   // This block is not needed on v19+ since crypto.getRandomValues is builtin
   if (ENVIRONMENT_IS_NODE) {
-    var nodeCrypto = require("crypto");
+    var nodeCrypto = require("node:crypto");
     return view => nodeCrypto.randomFillSync(view);
   }
   return view => crypto.getRandomValues(view);
@@ -985,7 +985,7 @@ var MEMFS = {
   },
   createNode(parent, name, mode, dev) {
     if (FS.isBlkdev(mode) || FS.isFIFO(mode)) {
-      // no supported
+      // not supported
       throw new FS.ErrnoError(63);
     }
     MEMFS.ops_table ||= {
@@ -1216,7 +1216,7 @@ var MEMFS = {
       // If the buffer is located in main memory (HEAP), and if
       // memory can grow, we can't hold on to references of the
       // memory buffer, as they may get invalidated. That means we
-      // need to do copy its contents.
+      // need to copy its contents.
       if (buffer.buffer === HEAP8.buffer) {
         canOwn = false;
       }
@@ -1374,7 +1374,7 @@ var FS_handledByPreloadPlugin = async (byteArray, fullname) => {
       return plugin["handle"](byteArray, fullname);
     }
   }
-  // In no plugin handled this file then return the original/unmodified
+  // If no plugin handled this file then return the original/unmodified
   // byteArray.
   return byteArray;
 };
@@ -1417,7 +1417,6 @@ var FS = {
   ignorePermissions: true,
   filesystems: null,
   syncFSRequests: 0,
-  readFiles: {},
   ErrnoError: class {
     name="ErrnoError";
     // We set the `name` property to be able to identify `FS.ErrnoError`
@@ -1676,9 +1675,11 @@ var FS = {
     // return 0 if any user, group or owner bits are set.
     if (perms.includes("r") && !(node.mode & 292)) {
       return 2;
-    } else if (perms.includes("w") && !(node.mode & 146)) {
+    }
+    if (perms.includes("w") && !(node.mode & 146)) {
       return 2;
-    } else if (perms.includes("x") && !(node.mode & 73)) {
+    }
+    if (perms.includes("x") && !(node.mode & 73)) {
       return 2;
     }
     return 0;
@@ -1718,10 +1719,8 @@ var FS = {
       if (FS.isRoot(node) || FS.getPath(node) === FS.cwd()) {
         return 10;
       }
-    } else {
-      if (FS.isDir(node.mode)) {
-        return 31;
-      }
+    } else if (FS.isDir(node.mode)) {
+      return 31;
     }
     return 0;
   },
@@ -1731,13 +1730,16 @@ var FS = {
     }
     if (FS.isLink(node.mode)) {
       return 32;
-    } else if (FS.isDir(node.mode)) {
-      if (FS.flagsToPermissionString(flags) !== "r" || (flags & (512 | 64))) {
-        // TODO: check for O_SEARCH? (== search for dir only)
+    }
+    var mode = FS.flagsToPermissionString(flags);
+    if (FS.isDir(node.mode)) {
+      // opening for write
+      // TODO: check for O_SEARCH? (== search for dir only)
+      if (mode !== "r" || (flags & (512 | 64))) {
         return 31;
       }
     }
-    return FS.nodePermissions(node, FS.flagsToPermissionString(flags));
+    return FS.nodePermissions(node, mode);
   },
   checkOpExists(op, err) {
     if (!op) {
@@ -2338,7 +2340,7 @@ var FS = {
       } else {
         // node doesn't exist, try to create it
         // Ignore the permission bits here to ensure we can `open` this new
-        // file below. We use chmod below the apply the permissions once the
+        // file below. We use chmod below to apply the permissions once the
         // file is open.
         node = FS.mknod(path, mode | 511, 0);
         created = true;
@@ -2389,11 +2391,6 @@ var FS = {
     }
     if (created) {
       FS.chmod(node, mode & 511);
-    }
-    if (Module["logReadFiles"] && !(flags & 1)) {
-      if (!(path in FS.readFiles)) {
-        FS.readFiles[path] = 1;
-      }
     }
     return stream;
   },
@@ -3026,7 +3023,6 @@ var FS = {
 };
 
 var SYSCALLS = {
-  DEFAULT_POLLMASK: 5,
   calculateAt(dirfd, path, allowEmpty) {
     if (PATH.isAbs(path)) {
       return path;
@@ -3315,7 +3311,7 @@ var getEnvStrings = () => {
   if (!getEnvStrings.strings) {
     // Default values.
     // Browser language detection #8751
-    var lang = ((typeof navigator == "object" && navigator.language) || "C").replace("-", "_") + ".UTF-8";
+    var lang = (globalThis.navigator?.language ?? "C").replace("-", "_") + ".UTF-8";
     var env = {
       "USER": "web_user",
       "LOGNAME": "web_user",
@@ -3718,17 +3714,17 @@ var _strptime = (buf, format, tm) => {
       }
     }
     /*
-        tm_sec  int seconds after the minute  0-61*
-        tm_min  int minutes after the hour  0-59
-        tm_hour int hours since midnight  0-23
-        tm_mday int day of the month  1-31
-        tm_mon  int months since January  0-11
-        tm_year int years since 1900
-        tm_wday int days since Sunday 0-6
-        tm_yday int days since January 1  0-365
-        tm_isdst  int Daylight Saving Time flag
-        tm_gmtoff long offset from GMT (seconds)
-        */ var fullDate = new Date(date.year, date.month, date.day, date.hour, date.min, date.sec, 0);
+      tm_sec  int seconds after the minute  0-61*
+      tm_min  int minutes after the hour  0-59
+      tm_hour int hours since midnight  0-23
+      tm_mday int day of the month  1-31
+      tm_mon  int months since January  0-11
+      tm_year int years since 1900
+      tm_wday int days since Sunday 0-6
+      tm_yday int days since January 1  0-365
+      tm_isdst  int Daylight Saving Time flag
+      tm_gmtoff long offset from GMT (seconds)
+      */ var fullDate = new Date(date.year, date.month, date.day, date.hour, date.min, date.sec, 0);
     HEAP32[((tm) >> 2)] = fullDate.getSeconds();
     HEAP32[(((tm) + (4)) >> 2)] = fullDate.getMinutes();
     HEAP32[(((tm) + (8)) >> 2)] = fullDate.getHours();
@@ -3766,11 +3762,11 @@ var stringToUTF8OnStack = str => {
 };
 
 /**
-     * @param {string|null=} returnType
-     * @param {Array=} argTypes
-     * @param {Array=} args
-     * @param {Object=} opts
-     */ var ccall = (ident, returnType, argTypes, args, opts) => {
+   * @param {string|null=} returnType
+   * @param {Array=} argTypes
+   * @param {Array=} args
+   * @param {Object=} opts
+   */ var ccall = (ident, returnType, argTypes, args, opts) => {
   // For fast lookup of conversion functions
   var toC = {
     "string": str => {
@@ -3818,10 +3814,10 @@ var stringToUTF8OnStack = str => {
 };
 
 /**
-     * @param {string=} returnType
-     * @param {Array=} argTypes
-     * @param {Object=} opts
-     */ var cwrap = (ident, returnType, argTypes, opts) => {
+   * @param {string=} returnType
+   * @param {Array=} argTypes
+   * @param {Object=} opts
+   */ var cwrap = (ident, returnType, argTypes, opts) => {
   // When the function takes numbers and returns a number, we can just return
   // the original function
   var numericArgs = !argTypes || argTypes.every(type => type === "number" || type === "boolean");
@@ -3968,7 +3964,7 @@ run();
 // In MODULARIZE mode we wrap the generated code in a factory function
 // and return either the Module itself, or a promise of the module.
 // We assign to the `moduleRtn` global here and configure closure to see
-// this as and extern so it won't get minified.
+// this as an extern so it won't get minified.
 if (runtimeInitialized) {
   moduleRtn = Module;
 } else {
