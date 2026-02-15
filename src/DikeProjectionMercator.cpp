@@ -38,38 +38,6 @@ static inline double mercator_y_to_lat (double y)
 	return atan(exp(y / g_earth_mean_radius)) / M_PI * 360.00 - 90.00;
 }
 
-double clew_projection_mercator_convert_lon (double lon)
-{
-	if (lon > g_earth_bound_lon_east) {
-		lon = g_earth_bound_lon_east;
-	}
-	if (lon < g_earth_bound_lon_west) {
-		lon = g_earth_bound_lon_west;
-	}
-	return mercator_lon_to_x(lon) + (g_bound.maxlon / 2.00);
-}
-
-double clew_projection_mercator_convert_lat (double lat)
-{
-	if (lat > g_earth_bound_lat_north) {
-		lat = g_earth_bound_lat_north;
-	}
-	if (lat < g_earth_bound_lat_south) {
-		lat = g_earth_bound_lat_south;
-	}
-	return (g_bound.maxlat / 2.00) - mercator_lat_to_y(lat);
-}
-
-double clew_projection_mercator_invert_lon (double lon)
-{
-	return mercator_x_to_lon(lon - (g_bound.maxlon / 2.00));
-}
-
-double clew_projection_mercator_invert_lat (double lat)
-{
-	return mercator_y_to_lat((g_bound.maxlat / 2.00) - lat);
-}
-
 DikeProjectionMercator::DikeProjectionMercator (void)
 {
 	g_bound.minlon = mercator_lon_to_x(g_earth_bound_lon_west);
@@ -88,6 +56,18 @@ DikeProjectionMercator::~DikeProjectionMercator (void)
 
 void DikeProjectionMercator::forward (double lon, double lat, double &x, double &y)
 {
+	if (lon > g_earth_bound_lon_east) {
+		lon = g_earth_bound_lon_east;
+	}
+	if (lon < g_earth_bound_lon_west) {
+		lon = g_earth_bound_lon_west;
+	}
+	if (lat > g_earth_bound_lat_north) {
+		lat = g_earth_bound_lat_north;
+	}
+	if (lat < g_earth_bound_lat_south) {
+		lat = g_earth_bound_lat_south;
+	}
         x = mercator_lon_to_x(lon);
         y = mercator_lat_to_y(lat);
 }
@@ -96,4 +76,16 @@ void DikeProjectionMercator::inverse (double x, double y, double &lon, double &l
 {
         lon = mercator_x_to_lon(x);
         lat = mercator_y_to_lat(y);
+	if (lon > g_earth_bound_lon_east) {
+		lon = g_earth_bound_lon_east;
+	}
+	if (lon < g_earth_bound_lon_west) {
+		lon = g_earth_bound_lon_west;
+	}
+	if (lat > g_earth_bound_lat_north) {
+		lat = g_earth_bound_lat_north;
+	}
+	if (lat < g_earth_bound_lat_south) {
+		lat = g_earth_bound_lat_south;
+	}
 }
