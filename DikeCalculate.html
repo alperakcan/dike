@@ -25,9 +25,11 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                 <meta name="viewport" content="width=device-width, initial-scale=1">
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
                 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
                 </head>
 
         <body id="body" class="d-flex flex-column min-vh-100">
@@ -110,11 +112,79 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                 return str;
                         }
 
+                        let dikeMap     = null;
+                        let dikeMapLayers = null;
+                        let dikeBaseLayer = null;
+                        const DIKE_BASE_LAYERS = {
+                                none: {
+                                        label: "None (no background)",
+                                        build: () => null
+                                },
+                                osm: {
+                                        label: "OpenStreetMap",
+                                        build: () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                                maxZoom: 19,
+                                                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                        })
+                                },
+                                osmHot: {
+                                        label: "OSM Humanitarian",
+                                        build: () => L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+                                                maxZoom: 19,
+                                                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/">HOT</a>'
+                                        })
+                                },
+                                openTopo: {
+                                        label: "OpenTopoMap",
+                                        build: () => L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                                                maxZoom: 17,
+                                                attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
+                                        })
+                                },
+                                esriSat: {
+                                        label: "Esri World Imagery",
+                                        build: () => L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                                                maxZoom: 19,
+                                                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics'
+                                        })
+                                },
+                                cartoLight: {
+                                        label: "Carto Positron (light)",
+                                        build: () => L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                                                maxZoom: 20,
+                                                subdomains: 'abcd',
+                                                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                                        })
+                                },
+                                cartoDark: {
+                                        label: "Carto Dark Matter",
+                                        build: () => L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                                                maxZoom: 20,
+                                                subdomains: 'abcd',
+                                                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                                        })
+                                }
+                        };
+                        let dikeBaseLayerKey = 'osm';
+
+                        function applyDikeBaseLayer() {
+                                if (!dikeMap) return;
+                                if (dikeBaseLayer) {
+                                        dikeMap.removeLayer(dikeBaseLayer);
+                                        dikeBaseLayer = null;
+                                }
+                                const entry = DIKE_BASE_LAYERS[dikeBaseLayerKey] || DIKE_BASE_LAYERS.osm;
+                                const layer = entry.build();
+                                if (layer) {
+                                        dikeBaseLayer = layer;
+                                        layer.addTo(dikeMap);
+                                        layer.bringToBack();
+                                }
+                        }
+
                         function renderCalculationView(acceptedPathPtr, rejectedPathPtr) {
                                 const container = document.getElementById("outputView");
-                                const width = container.clientWidth || 800;
-                                const height = 420;
-                                const margin = 20;
+                                container.style.height = "420px";
 
                                 function collectSubpaths (pathPtr) {
                                         if (!pathPtr) return [];
@@ -132,7 +202,7 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                                         if (current.length > 0) subpaths.push(current);
                                                         current = [];
                                                 }
-                                                current.push([lon, lat]);
+                                                current.push([lat, lon]); // Leaflet uses [lat, lon]
                                         }
                                         if (current.length > 0) subpaths.push(current);
                                         return subpaths;
@@ -141,195 +211,70 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                 const accSubs = collectSubpaths(acceptedPathPtr);
                                 const rejSubs = collectSubpaths(rejectedPathPtr);
 
-                                let minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
-                                const allSubs = accSubs.concat(rejSubs);
-                                for (const sub of allSubs) {
-                                        for (const [lon, lat] of sub) {
-                                                if (lon < minLon) minLon = lon;
-                                                if (lon > maxLon) maxLon = lon;
-                                                if (lat < minLat) minLat = lat;
-                                                if (lat > maxLat) maxLat = lat;
+                                if (accSubs.length === 0 && rejSubs.length === 0) {
+                                        if (dikeMap) {
+                                                dikeMap.remove();
+                                                dikeMap = null;
+                                                dikeMapLayers = null;
+                                                dikeBaseLayer = null;
                                         }
-                                }
-
-                                if (!isFinite(minLon) || !isFinite(maxLon) || !isFinite(minLat) || !isFinite(maxLat)) {
-                                        container.innerHTML = '<div class="text-muted">No geometry to display.</div>';
+                                        container.style.height = "";
+                                        container.innerHTML = '<div class="text-muted p-3">No geometry to display.</div>';
                                         return;
                                 }
 
-                                const lonSpan = (maxLon - minLon) || 1e-6;
-                                const latSpan = (maxLat - minLat) || 1e-6;
-
-                                let viewBox = {
-                                        x: 0,
-                                        y: 0,
-                                        width: width,
-                                        height: height
-                                };
-                                let isPanning = false;
-                                let startPoint = { x: 0, y: 0 };
-
-                                function project(lon, lat) {
-                                        const x = margin + (lon - minLon) * (width - 2 * margin) / lonSpan;
-                                        const y = height - margin - (lat - minLat) * (height - 2 * margin) / latSpan;
-                                        return [x, y];
+                                if (dikeMap && !container.querySelector('.leaflet-pane')) {
+                                        try { dikeMap.remove(); } catch (e) { /* ignore */ }
+                                        dikeMap = null;
+                                        dikeMapLayers = null;
+                                        dikeBaseLayer = null;
                                 }
 
-                                function pathData(sub) {
-                                        if (sub.length === 0) return "";
-                                        const [x0, y0] = project(sub[0][0], sub[0][1]);
-                                        let d = `M ${x0.toFixed(2)},${y0.toFixed(2)}`;
-                                        for (let i = 1; i < sub.length; i++) {
-                                                const [x, y] = project(sub[i][0], sub[i][1]);
-                                                d += ` L ${x.toFixed(2)},${y.toFixed(2)}`;
-                                        }
-                                        return d;
+                                if (!dikeMap) {
+                                        container.innerHTML = "";
+                                        dikeMap = L.map(container, {
+                                                zoomControl: false,
+                                                attributionControl: true
+                                        }).setView([0, 0], 2);
+                                        dikeMapLayers = L.layerGroup().addTo(dikeMap);
+                                        applyDikeBaseLayer();
+                                } else {
+                                        dikeMapLayers.clearLayers();
+                                        // Force size recalculation in case container width changed.
+                                        setTimeout(() => dikeMap.invalidateSize(), 0);
                                 }
 
-                                function render() {
-                                        let svgParts = [];
-                                        svgParts.push(`<svg id="calcSvg" xmlns="http://www.w3.org/2000/svg" width="100%" height="${height}" viewBox="${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}" style="cursor: grab;">`);
-                                        svgParts.push(`<rect x="0" y="0" width="${width}" height="${height}" fill="#ffffff"/>`);
-
-                                        for (const sub of rejSubs) {
-                                                const d = pathData(sub);
-                                                if (d) svgParts.push(`<path d="${d}" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />`);
-                                        }
-                                        for (const sub of accSubs) {
-                                                const d = pathData(sub);
-                                                if (d) svgParts.push(`<path d="${d}" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />`);
-                                        }
-
-                                        svgParts.push(`</svg>`);
-
-                                        svgParts.push(`
-                                                <div style="position: absolute; top: 10px; left: 10px; pointer-events: none; z-index: 10;">
-                                                        <div style="background: rgba(248,249,250,0.95); border: 1px solid #dee2e6; border-radius: 6px; padding: 8px 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; font-size: 12px;">
-                                                                <div style="display: flex; align-items: center; margin-bottom: 4px;">
-                                                                        <div style="width: 30px; height: 3px; background: #0d6efd; margin-right: 8px;"></div>
-                                                                        <span style="color: #212529;">Accepted</span>
-                                                                </div>
-                                                                <div style="display: flex; align-items: center;">
-                                                                        <div style="width: 30px; height: 3px; background: #dc3545; margin-right: 8px;"></div>
-                                                                        <span style="color: #212529;">Rejected</span>
-                                                                </div>
-                                                        </div>
-                                                </div>
-                                                <div style="position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 5px; z-index: 10;">
-                                                        <button id="zoomIn" class="btn btn-sm btn-light shadow-sm" style="width: 36px; height: 36px;" title="Zoom In">
-                                                                <i class="bi bi-zoom-in"></i>
-                                                        </button>
-                                                        <button id="zoomOut" class="btn btn-sm btn-light shadow-sm" style="width: 36px; height: 36px;" title="Zoom Out">
-                                                                <i class="bi bi-zoom-out"></i>
-                                                        </button>
-                                                        <button id="zoomReset" class="btn btn-sm btn-light shadow-sm" style="width: 36px; height: 36px;" title="Reset View">
-                                                                <i class="bi bi-arrow-clockwise"></i>
-                                                        </button>
-                                                </div>
-                                        `);
-
-                                        container.innerHTML = svgParts.join("");
-                                        const svg = document.getElementById('calcSvg');
-
-                                        svg.addEventListener('mousedown', (e) => {
-                                                isPanning = true;
-                                                svg.style.cursor = 'grabbing';
-                                                startPoint = { x: e.clientX, y: e.clientY };
-                                        });
-
-                                        svg.addEventListener('mousemove', (e) => {
-                                                if (!isPanning) return;
-                                                const dx = (e.clientX - startPoint.x) * (viewBox.width / width);
-                                                const dy = (e.clientY - startPoint.y) * (viewBox.height / height);
-
-                                                let newX = viewBox.x - dx;
-                                                let newY = viewBox.y - dy;
-
-                                                newX = Math.max(0, Math.min(newX, width - viewBox.width));
-                                                newY = Math.max(0, Math.min(newY, height - viewBox.height));
-
-                                                viewBox.x = newX;
-                                                viewBox.y = newY;
-                                                startPoint = { x: e.clientX, y: e.clientY };
-                                                render();
-                                        });
-
-                                        svg.addEventListener('mouseup', () => {
-                                                isPanning = false;
-                                                svg.style.cursor = 'grab';
-                                        });
-
-                                        svg.addEventListener('mouseleave', () => {
-                                                isPanning = false;
-                                                svg.style.cursor = 'grab';
-                                        });
-
-                                        svg.addEventListener('wheel', (e) => {
-                                                e.preventDefault();
-                                                const scale = e.deltaY < 0 ? 0.9 : 1.1;
-
-                                                if (scale > 1 && (viewBox.width >= width || viewBox.height >= height)) {
-                                                        return;
-                                                }
-
-                                                const rect = svg.getBoundingClientRect();
-                                                const mouseX = e.clientX - rect.left;
-                                                const mouseY = e.clientY - rect.top;
-                                                const worldX = viewBox.x + (mouseX / rect.width) * viewBox.width;
-                                                const worldY = viewBox.y + (mouseY / rect.height) * viewBox.height;
-
-                                                viewBox.width *= scale;
-                                                viewBox.height *= scale;
-                                                viewBox.x = worldX - (mouseX / rect.width) * viewBox.width;
-                                                viewBox.y = worldY - (mouseY / rect.height) * viewBox.height;
-
-                                                viewBox.x = Math.max(0, Math.min(viewBox.x, width - viewBox.width));
-                                                viewBox.y = Math.max(0, Math.min(viewBox.y, height - viewBox.height));
-
-                                                render();
-                                        });
-
-                                        document.getElementById('zoomIn').addEventListener('click', () => {
-                                                const scale = 0.8;
-                                                const centerX = viewBox.x + viewBox.width / 2;
-                                                const centerY = viewBox.y + viewBox.height / 2;
-                                                viewBox.width *= scale;
-                                                viewBox.height *= scale;
-                                                viewBox.x = centerX - viewBox.width / 2;
-                                                viewBox.y = centerY - viewBox.height / 2;
-
-                                                viewBox.x = Math.max(0, Math.min(viewBox.x, width - viewBox.width));
-                                                viewBox.y = Math.max(0, Math.min(viewBox.y, height - viewBox.height));
-
-                                                render();
-                                        });
-
-                                        document.getElementById('zoomOut').addEventListener('click', () => {
-                                                if (viewBox.width >= width || viewBox.height >= height) {
-                                                        return;
-                                                }
-
-                                                const scale = 1.25;
-                                                const centerX = viewBox.x + viewBox.width / 2;
-                                                const centerY = viewBox.y + viewBox.height / 2;
-                                                viewBox.width *= scale;
-                                                viewBox.height *= scale;
-                                                viewBox.x = centerX - viewBox.width / 2;
-                                                viewBox.y = centerY - viewBox.height / 2;
-
-                                                viewBox.x = Math.max(0, Math.min(viewBox.x, width - viewBox.width));
-                                                viewBox.y = Math.max(0, Math.min(viewBox.y, height - viewBox.height));
-
-                                                render();
-                                        });
-
-                                        document.getElementById('zoomReset').addEventListener('click', () => {
-                                                viewBox = { x: 0, y: 0, width: width, height: height };
-                                                render();
-                                        });
+                                for (const sub of rejSubs) {
+                                        if (sub.length < 2) continue;
+                                        L.polyline(sub, { color: '#dc3545', weight: 3, opacity: 0.9 }).addTo(dikeMapLayers);
+                                }
+                                for (const sub of accSubs) {
+                                        if (sub.length < 2) continue;
+                                        L.polyline(sub, { color: '#0d6efd', weight: 3, opacity: 0.9 }).addTo(dikeMapLayers);
                                 }
 
-                                render();
+                                const bounds = L.latLngBounds([]);
+                                for (const sub of accSubs.concat(rejSubs)) {
+                                        for (const pt of sub) bounds.extend(pt);
+                                }
+                                const initialBounds = bounds.isValid() ? bounds.pad(0.05) : null;
+                                if (initialBounds) {
+                                        dikeMap.fitBounds(initialBounds);
+                                }
+
+                                function bindZoomButton(id, handler) {
+                                        const oldBtn = document.getElementById(id);
+                                        if (!oldBtn) return;
+                                        const newBtn = oldBtn.cloneNode(true);
+                                        oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+                                        newBtn.addEventListener('click', handler);
+                                }
+
+                                bindZoomButton('zoomIn',    () => dikeMap.zoomIn());
+                                bindZoomButton('zoomOut',   () => dikeMap.zoomOut());
+                                bindZoomButton('zoomReset', () => {
+                                        if (initialBounds) dikeMap.fitBounds(initialBounds);
+                                });
                         }
 
                         let inputDikeTrackDel = function (idx) {
@@ -566,6 +511,33 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                         inputDikeTracksList.innerHTML = "(empty)";
                         inputDikeRecordsList.innerHTML = "(empty)";
 
+                        (function initBaseLayerMenu() {
+                                const menu = document.getElementById('calcViewLayersMenu');
+                                if (!menu) return;
+                                function refresh() {
+                                        menu.innerHTML = "";
+                                        for (const key of Object.keys(DIKE_BASE_LAYERS)) {
+                                                const entry = DIKE_BASE_LAYERS[key];
+                                                const li = document.createElement('li');
+                                                const a = document.createElement('a');
+                                                a.href = "#";
+                                                a.className = "dropdown-item d-flex align-items-center justify-content-between";
+                                                a.dataset.layerKey = key;
+                                                a.innerHTML = `<span>${entry.label}</span>` +
+                                                        (key === dikeBaseLayerKey ? '<i class="bi bi-check2 ms-2"></i>' : '');
+                                                a.addEventListener('click', (e) => {
+                                                        e.preventDefault();
+                                                        dikeBaseLayerKey = key;
+                                                        applyDikeBaseLayer();
+                                                        refresh();
+                                                });
+                                                li.appendChild(a);
+                                                menu.appendChild(li);
+                                        }
+                                }
+                                refresh();
+                        })();
+
                         window.inputDikeTrackDel = inputDikeTrackDel;
                         window.inputDikeRecordDel = inputDikeRecordDel;
 
@@ -650,10 +622,44 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                         <div class="row justify-content-center">
                                 <div class="col-lg-10">
                                         <div class="card shadow-sm">
-                                                <div class="card-header bg-light">
+                                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
                                                         <h5 class="mb-0"><i class="bi bi-terminal"></i> Calculation View</h5>
+                                                        <div class="d-flex align-items-center gap-1">
+                                                                <button id="zoomIn" type="button" class="btn btn-sm btn-light border" title="Zoom In">
+                                                                        <i class="bi bi-zoom-in"></i>
+                                                                </button>
+                                                                <button id="zoomOut" type="button" class="btn btn-sm btn-light border" title="Zoom Out">
+                                                                        <i class="bi bi-zoom-out"></i>
+                                                                </button>
+                                                                <button id="zoomReset" type="button" class="btn btn-sm btn-light border" title="Reset View">
+                                                                        <i class="bi bi-arrow-clockwise"></i>
+                                                                </button>
+                                                                <div class="dropdown">
+                                                                        <button class="btn btn-sm btn-light border" type="button" id="calcViewLayersBtn" data-bs-toggle="dropdown" aria-expanded="false" title="Base Layer">
+                                                                                <i class="bi bi-layers"></i>
+                                                                        </button>
+                                                                        <ul id="calcViewLayersMenu" class="dropdown-menu dropdown-menu-end" aria-labelledby="calcViewLayersBtn" style="min-width: 200px;">
+                                                                        </ul>
+                                                                </div>
+                                                                <div class="dropdown">
+                                                                        <button class="btn btn-sm btn-light border" type="button" id="calcViewLegendBtn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Legend">
+                                                                                <i class="bi bi-info-circle"></i>
+                                                                        </button>
+                                                                        <div class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="calcViewLegendBtn" style="min-width: 160px;">
+                                                                                <div class="fw-bold mb-2" style="font-size: 12px;">Legend</div>
+                                                                                <div style="display: flex; align-items: center; margin-bottom: 4px; font-size: 12px;">
+                                                                                        <div style="width: 30px; height: 3px; background: #0d6efd; margin-right: 8px;"></div>
+                                                                                        <span>Accepted</span>
+                                                                                </div>
+                                                                                <div style="display: flex; align-items: center; font-size: 12px;">
+                                                                                        <div style="width: 30px; height: 3px; background: #dc3545; margin-right: 8px;"></div>
+                                                                                        <span>Rejected</span>
+                                                                                </div>
+                                                                        </div>
+                                                                </div>
+                                                        </div>
                                                 </div>
-                                                <div id="outputView" class="card-body font-monospace" style="position: relative; min-height: 100px; font-size: 0.9rem;">
+                                                <div id="outputView" class="card-body p-0" style="position: relative; min-height: 100px;">
                                                 </div>
                                         </div>
                                 </div>
