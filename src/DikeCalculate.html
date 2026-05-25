@@ -185,6 +185,7 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                         function renderCalculationView(acceptedPathPtr, rejectedPathPtr) {
                                 const container = document.getElementById("outputView");
                                 container.style.height = "420px";
+                                container.style.padding = "0";
 
                                 function collectSubpaths (pathPtr) {
                                         if (!pathPtr) return [];
@@ -219,7 +220,8 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                                 dikeBaseLayer = null;
                                         }
                                         container.style.height = "";
-                                        container.innerHTML = '<div class="text-muted p-3">No geometry to display.</div>';
+                                        container.style.padding = "";
+                                        container.innerHTML = 'No geometry to display.<br>';
                                         return;
                                 }
 
@@ -659,7 +661,7 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                                                 </div>
                                                         </div>
                                                 </div>
-                                                <div id="outputView" class="card-body p-0" style="position: relative; min-height: 100px;">
+                                                <div id="outputView" class="card-body" style="position: relative; min-height: 100px;">
                                                 </div>
                                         </div>
                                 </div>
