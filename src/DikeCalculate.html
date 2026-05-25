@@ -202,32 +202,6 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
 
                                         svgParts.push(`</svg>`);
 
-                                        svgParts.push(`
-                                                <div style="position: absolute; top: 10px; left: 10px; pointer-events: none; z-index: 10;">
-                                                        <div style="background: rgba(248,249,250,0.95); border: 1px solid #dee2e6; border-radius: 6px; padding: 8px 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; font-size: 12px;">
-                                                                <div style="display: flex; align-items: center; margin-bottom: 4px;">
-                                                                        <div style="width: 30px; height: 3px; background: #0d6efd; margin-right: 8px;"></div>
-                                                                        <span style="color: #212529;">Accepted</span>
-                                                                </div>
-                                                                <div style="display: flex; align-items: center;">
-                                                                        <div style="width: 30px; height: 3px; background: #dc3545; margin-right: 8px;"></div>
-                                                                        <span style="color: #212529;">Rejected</span>
-                                                                </div>
-                                                        </div>
-                                                </div>
-                                                <div style="position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 5px; z-index: 10;">
-                                                        <button id="zoomIn" class="btn btn-sm btn-light shadow-sm" style="width: 36px; height: 36px;" title="Zoom In">
-                                                                <i class="bi bi-zoom-in"></i>
-                                                        </button>
-                                                        <button id="zoomOut" class="btn btn-sm btn-light shadow-sm" style="width: 36px; height: 36px;" title="Zoom Out">
-                                                                <i class="bi bi-zoom-out"></i>
-                                                        </button>
-                                                        <button id="zoomReset" class="btn btn-sm btn-light shadow-sm" style="width: 36px; height: 36px;" title="Reset View">
-                                                                <i class="bi bi-arrow-clockwise"></i>
-                                                        </button>
-                                                </div>
-                                        `);
-
                                         container.innerHTML = svgParts.join("");
                                         const svg = document.getElementById('calcSvg');
 
@@ -289,45 +263,54 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                                 render();
                                         });
 
-                                        document.getElementById('zoomIn').addEventListener('click', () => {
-                                                const scale = 0.8;
-                                                const centerX = viewBox.x + viewBox.width / 2;
-                                                const centerY = viewBox.y + viewBox.height / 2;
-                                                viewBox.width *= scale;
-                                                viewBox.height *= scale;
-                                                viewBox.x = centerX - viewBox.width / 2;
-                                                viewBox.y = centerY - viewBox.height / 2;
-
-                                                viewBox.x = Math.max(0, Math.min(viewBox.x, width - viewBox.width));
-                                                viewBox.y = Math.max(0, Math.min(viewBox.y, height - viewBox.height));
-
-                                                render();
-                                        });
-
-                                        document.getElementById('zoomOut').addEventListener('click', () => {
-                                                if (viewBox.width >= width || viewBox.height >= height) {
-                                                        return;
-                                                }
-
-                                                const scale = 1.25;
-                                                const centerX = viewBox.x + viewBox.width / 2;
-                                                const centerY = viewBox.y + viewBox.height / 2;
-                                                viewBox.width *= scale;
-                                                viewBox.height *= scale;
-                                                viewBox.x = centerX - viewBox.width / 2;
-                                                viewBox.y = centerY - viewBox.height / 2;
-
-                                                viewBox.x = Math.max(0, Math.min(viewBox.x, width - viewBox.width));
-                                                viewBox.y = Math.max(0, Math.min(viewBox.y, height - viewBox.height));
-
-                                                render();
-                                        });
-
-                                        document.getElementById('zoomReset').addEventListener('click', () => {
-                                                viewBox = { x: 0, y: 0, width: width, height: height };
-                                                render();
-                                        });
                                 }
+
+                                function bindZoomButton(id, handler) {
+                                        const oldBtn = document.getElementById(id);
+                                        if (!oldBtn) return;
+                                        const newBtn = oldBtn.cloneNode(true);
+                                        oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+                                        newBtn.addEventListener('click', handler);
+                                }
+
+                                bindZoomButton('zoomIn', () => {
+                                        const scale = 0.8;
+                                        const centerX = viewBox.x + viewBox.width / 2;
+                                        const centerY = viewBox.y + viewBox.height / 2;
+                                        viewBox.width *= scale;
+                                        viewBox.height *= scale;
+                                        viewBox.x = centerX - viewBox.width / 2;
+                                        viewBox.y = centerY - viewBox.height / 2;
+
+                                        viewBox.x = Math.max(0, Math.min(viewBox.x, width - viewBox.width));
+                                        viewBox.y = Math.max(0, Math.min(viewBox.y, height - viewBox.height));
+
+                                        render();
+                                });
+
+                                bindZoomButton('zoomOut', () => {
+                                        if (viewBox.width >= width || viewBox.height >= height) {
+                                                return;
+                                        }
+
+                                        const scale = 1.25;
+                                        const centerX = viewBox.x + viewBox.width / 2;
+                                        const centerY = viewBox.y + viewBox.height / 2;
+                                        viewBox.width *= scale;
+                                        viewBox.height *= scale;
+                                        viewBox.x = centerX - viewBox.width / 2;
+                                        viewBox.y = centerY - viewBox.height / 2;
+
+                                        viewBox.x = Math.max(0, Math.min(viewBox.x, width - viewBox.width));
+                                        viewBox.y = Math.max(0, Math.min(viewBox.y, height - viewBox.height));
+
+                                        render();
+                                });
+
+                                bindZoomButton('zoomReset', () => {
+                                        viewBox = { x: 0, y: 0, width: width, height: height };
+                                        render();
+                                });
 
                                 render();
                         }
@@ -650,8 +633,35 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                         <div class="row justify-content-center">
                                 <div class="col-lg-10">
                                         <div class="card shadow-sm">
-                                                <div class="card-header bg-light">
+                                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
                                                         <h5 class="mb-0"><i class="bi bi-terminal"></i> Calculation View</h5>
+                                                        <div class="d-flex align-items-center gap-1">
+                                                                <button id="zoomIn" type="button" class="btn btn-sm btn-light border" title="Zoom In">
+                                                                        <i class="bi bi-zoom-in"></i>
+                                                                </button>
+                                                                <button id="zoomOut" type="button" class="btn btn-sm btn-light border" title="Zoom Out">
+                                                                        <i class="bi bi-zoom-out"></i>
+                                                                </button>
+                                                                <button id="zoomReset" type="button" class="btn btn-sm btn-light border" title="Reset View">
+                                                                        <i class="bi bi-arrow-clockwise"></i>
+                                                                </button>
+                                                                <div class="dropdown">
+                                                                        <button class="btn btn-sm btn-light border" type="button" id="calcViewLegendBtn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Legend">
+                                                                                <i class="bi bi-info-circle"></i>
+                                                                        </button>
+                                                                        <div class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="calcViewLegendBtn" style="min-width: 160px;">
+                                                                                <div class="fw-bold mb-2" style="font-size: 12px;">Legend</div>
+                                                                                <div style="display: flex; align-items: center; margin-bottom: 4px; font-size: 12px;">
+                                                                                        <div style="width: 30px; height: 3px; background: #0d6efd; margin-right: 8px;"></div>
+                                                                                        <span>Accepted</span>
+                                                                                </div>
+                                                                                <div style="display: flex; align-items: center; font-size: 12px;">
+                                                                                        <div style="width: 30px; height: 3px; background: #dc3545; margin-right: 8px;"></div>
+                                                                                        <span>Rejected</span>
+                                                                                </div>
+                                                                        </div>
+                                                                </div>
+                                                        </div>
                                                 </div>
                                                 <div id="outputView" class="card-body font-monospace" style="position: relative; min-height: 100px; font-size: 0.9rem;">
                                                 </div>
