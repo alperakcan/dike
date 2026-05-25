@@ -141,24 +141,40 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                 const accSubs = collectSubpaths(acceptedPathPtr);
                                 const rejSubs = collectSubpaths(rejectedPathPtr);
 
-                                let minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
+                                // Web Mercator projection (clamped to avoid the singularity at the poles).
+                                const MERCATOR_MAX_LAT = 85.05112878;
+                                function mercatorY(lat) {
+                                        const clamped = Math.max(-MERCATOR_MAX_LAT, Math.min(MERCATOR_MAX_LAT, lat));
+                                        const rad = clamped * Math.PI / 180;
+                                        return Math.log(Math.tan(Math.PI / 4 + rad / 2)) * 180 / Math.PI;
+                                }
+
+                                let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
                                 const allSubs = accSubs.concat(rejSubs);
                                 for (const sub of allSubs) {
                                         for (const [lon, lat] of sub) {
-                                                if (lon < minLon) minLon = lon;
-                                                if (lon > maxLon) maxLon = lon;
-                                                if (lat < minLat) minLat = lat;
-                                                if (lat > maxLat) maxLat = lat;
+                                                const my = mercatorY(lat);
+                                                if (lon < minX) minX = lon;
+                                                if (lon > maxX) maxX = lon;
+                                                if (my < minY) minY = my;
+                                                if (my > maxY) maxY = my;
                                         }
                                 }
 
-                                if (!isFinite(minLon) || !isFinite(maxLon) || !isFinite(minLat) || !isFinite(maxLat)) {
+                                if (!isFinite(minX) || !isFinite(maxX) || !isFinite(minY) || !isFinite(maxY)) {
                                         container.innerHTML = '<div class="text-muted">No geometry to display.</div>';
                                         return;
                                 }
 
-                                const lonSpan = (maxLon - minLon) || 1e-6;
-                                const latSpan = (maxLat - minLat) || 1e-6;
+                                const xSpan = (maxX - minX) || 1e-6;
+                                const ySpan = (maxY - minY) || 1e-6;
+
+                                // Fit projected bbox into the drawing area while preserving aspect ratio.
+                                const drawW = width - 2 * margin;
+                                const drawH = height - 2 * margin;
+                                const scaleFit = Math.min(drawW / xSpan, drawH / ySpan);
+                                const offsetX = margin + (drawW - xSpan * scaleFit) / 2;
+                                const offsetY = margin + (drawH - ySpan * scaleFit) / 2;
 
                                 let viewBox = {
                                         x: 0,
@@ -170,8 +186,9 @@ Full license information: https://github.com/alperakcan/dike/blob/main/LICENSE
                                 let startPoint = { x: 0, y: 0 };
 
                                 function project(lon, lat) {
-                                        const x = margin + (lon - minLon) * (width - 2 * margin) / lonSpan;
-                                        const y = height - margin - (lat - minLat) * (height - 2 * margin) / latSpan;
+                                        const my = mercatorY(lat);
+                                        const x = offsetX + (lon - minX) * scaleFit;
+                                        const y = height - (offsetY + (my - minY) * scaleFit);
                                         return [x, y];
                                 }
 
